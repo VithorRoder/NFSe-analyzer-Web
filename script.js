@@ -2,7 +2,7 @@ const sampleNotes = [
   { number: "000124", client: "Studio Horizonte", date: "18/09/2026", value: 3250, status: "valid" },
   { number: "000123", client: "Almeida & Costa Ltda.", date: "12/09/2026", value: 1800, status: "valid" },
   { number: "000122", client: "Norte Digital", date: "08/09/2026", value: 2400, status: "cancelled" },
-  { number: "000121", client: "Clínica Bem Viver", date: "02/09/2026", value: 4750, status: "valid" },
+  { number: "000121", client: "Clínica Nutri Verde", date: "02/09/2026", value: 4750, status: "valid" },
   { number: "000120", client: "Oliveira Consultoria", date: "25/08/2026", value: 2100, status: "valid" }
 ];
 
