@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "NFSe Analyzer — Portal",
+  "version": "0.1.0",
+  "description": "Lê as notas da aba autenticada do portal NFS-e e entrega ao NFSe Analyzer.",
+  "minimum_chrome_version": "102",
+  "permissions": ["scripting", "tabs"],
+  "host_permissions": [
+    "https://www.nfse.gov.br/*",
+    "https://nfseanalyzer.vercel.app/*"
+  ],
+  "background": {"service_worker": "background.js"},
+  "action": {
+    "default_title": "Coletar notas do portal NFS-e",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [{
+    "matches": ["https://nfseanalyzer.vercel.app/*"],
+    "js": ["site-bridge.js"],
+    "run_at": "document_idle"
+  }]
+}

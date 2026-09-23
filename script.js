@@ -1,83 +1,205 @@
-const sampleNotes = [
-  { number: "000124", client: "Studio Horizonte", date: "18/09/2026", value: 3250, status: "valid" },
-  { number: "000123", client: "Almeida & Costa Ltda.", date: "12/09/2026", value: 1800, status: "valid" },
-  { number: "000122", client: "Norte Digital", date: "08/09/2026", value: 2400, status: "cancelled" },
-  { number: "000121", client: "Clínica Nutri Verde", date: "02/09/2026", value: 4750, status: "valid" },
-  { number: "000120", client: "Oliveira Consultoria", date: "25/08/2026", value: 2100, status: "valid" }
+const example = [
+  {number:"000124",client:"Studio Horizonte",date:"18/09/2026",value:3250,status:"valid"},
+  {number:"000123",client:"Almeida & Costa Ltda.",date:"12/09/2026",value:1800,status:"valid"},
+  {number:"000122",client:"Norte Digital",date:"08/09/2026",value:2400,status:"cancelled"},
+  {number:"000121",client:"Clínica Nutri Verde",date:"02/09/2026",value:4750,status:"valid"},
+  {number:"000120",client:"Oliveira Consultoria",date:"25/08/2026",value:2100,status:"substituted"}
 ];
+const labels = {valid:"Válida",cancelled:"Cancelada",substituted:"Substituída",unknown:"Não identificada"};
+const colors = {valid:"#5274f4",cancelled:"#f2ae76",substituted:"#a382df",unknown:"#aeb9c9"};
+const money = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"});
+const monthFormat = new Intl.DateTimeFormat("pt-BR",{month:"short",year:"2-digit",timeZone:"UTC"});
+const $ = selector => document.querySelector(selector);
+let notes = example;
+let demo = true;
 
-const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-const notesBody = document.querySelector("#notes-body");
-const searchInput = document.querySelector("#search-input");
-const statusFilter = document.querySelector("#status-filter");
+function dateKey(value) {
+  const br = String(value || "").match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  if (br) return [br[3],br[2],br[1]].join("-");
+  return String(value || "").match(/^\d{4}-\d{2}-\d{2}/)?.[0] || "";
+}
 
-function renderNotes() {
-  const query = searchInput.value.trim().toLocaleLowerCase("pt-BR");
-  const filtered = sampleNotes.filter(note =>
-    (statusFilter.value === "all" || note.status === statusFilter.value) &&
-    `${note.number} ${note.client}`.toLocaleLowerCase("pt-BR").includes(query)
-  );
+function filteredNotes() {
+  const query = $("#search-input").value.trim().toLocaleLowerCase("pt-BR");
+  const status = $("#status-filter").value;
+  const from = $("#date-from").value;
+  const to = $("#date-to").value;
+  return notes.filter(note => {
+    const date = dateKey(note.date);
+    return (status === "all" || note.status === status) &&
+      (!from || (date && date >= from)) && (!to || (date && date <= to)) &&
+      [note.number,note.client,note.rawStatus].join(" ").toLocaleLowerCase("pt-BR").includes(query);
+  });
+}
 
-  notesBody.replaceChildren();
-  if (!filtered.length) {
-    const row = document.createElement("tr");
-    const cell = document.createElement("td");
-    cell.colSpan = 5;
-    cell.className = "empty-row";
-    cell.textContent = "Nenhuma nota encontrada para esta busca.";
-    row.append(cell);
-    notesBody.append(row);
-  } else {
-    filtered.forEach(note => {
-      const row = document.createElement("tr");
-      [note.number, note.client, note.date, money.format(note.value)].forEach(value => {
-        const cell = document.createElement("td");
-        cell.textContent = value;
-        row.append(cell);
-      });
-      const statusCell = document.createElement("td");
-      const badge = document.createElement("span");
-      badge.className = `status ${note.status}`;
-      badge.textContent = note.status === "valid" ? "Válida" : "Cancelada";
-      statusCell.append(badge);
-      row.append(statusCell);
-      notesBody.append(row);
-    });
+function renderTable(rows) {
+  const body = $("#notes-body");
+  body.replaceChildren();
+  if (!rows.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 5;
+    td.className = "empty-row";
+    td.textContent = "Nenhuma nota encontrada para os filtros escolhidos.";
+    tr.append(td);
+    body.append(tr);
   }
-  document.querySelector("#result-count").textContent = `${filtered.length} de ${sampleNotes.length} notas exibidas`;
+  rows.forEach(note => {
+    const tr = document.createElement("tr");
+    [note.number || "—",note.client || "—",note.date || "—",money.format(note.value)].forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.append(td);
+    });
+    const td = document.createElement("td");
+    const badge = document.createElement("span");
+    badge.className = "status " + note.status;
+    badge.textContent = labels[note.status];
+    if (note.rawStatus) badge.title = "Situação no portal: " + note.rawStatus;
+    td.append(badge);
+    tr.append(td);
+    body.append(tr);
+  });
+  $("#result-count").textContent = rows.length + " de " + notes.length + " notas exibidas";
 }
 
-searchInput.addEventListener("input", renderNotes);
-statusFilter.addEventListener("change", renderNotes);
-renderNotes();
-
-const fileInput = document.querySelector("#file-input");
-const dropZone = document.querySelector("#drop-zone");
-const feedback = document.querySelector("#file-feedback");
-document.querySelector("#choose-files").addEventListener("click", () => fileInput.click());
-fileInput.addEventListener("change", () => showFiles(fileInput.files));
-
-for (const eventName of ["dragenter", "dragover"]) {
-  dropZone.addEventListener(eventName, event => { event.preventDefault(); dropZone.classList.add("drag-over"); });
+function renderSummary(rows) {
+  const count = {valid:0,cancelled:0,substituted:0,unknown:0};
+  let total = 0;
+  rows.forEach(note => { count[note.status]++; if (note.status === "valid") total += note.value; });
+  $("#metric-total").textContent = money.format(total);
+  $("#metric-valid").textContent = count.valid;
+  $("#metric-cancelled").textContent = count.cancelled;
+  $("#metric-substituted").textContent = count.substituted;
+  $("#donut-total").textContent = rows.length;
+  const legend = $("#status-legend");
+  legend.replaceChildren();
+  const slices = [];
+  let start = 0;
+  Object.keys(labels).forEach(status => {
+    const percentage = rows.length ? count[status] / rows.length * 100 : 0;
+    if (count[status]) {
+      slices.push(colors[status] + " " + start + "% " + (start + percentage) + "%");
+      start += percentage;
+    }
+    const line = document.createElement("div");
+    const name = document.createElement("span");
+    const dot = document.createElement("i");
+    dot.className = "legend-dot " + status;
+    name.append(dot,document.createTextNode(labels[status]));
+    const value = document.createElement("strong");
+    value.textContent = count[status] + " (" + percentage.toFixed(1).replace(".",",") + "%)";
+    line.append(name,value);
+    legend.append(line);
+  });
+  $("#status-donut").style.background = slices.length ? "conic-gradient(" + slices.join(",") + ")" : "#e7ebf3";
 }
-for (const eventName of ["dragleave", "drop"]) {
-  dropZone.addEventListener(eventName, event => { event.preventDefault(); dropZone.classList.remove("drag-over"); });
-}
-dropZone.addEventListener("drop", event => showFiles(event.dataTransfer.files));
 
-function showFiles(fileList) {
-  const files = Array.from(fileList);
-  const xmlFiles = files.filter(file => file.name.toLowerCase().endsWith(".xml"));
-  feedback.hidden = false;
-  if (!xmlFiles.length) {
-    feedback.textContent = "Selecione arquivos com a extensão .xml.";
+function renderChart(rows) {
+  const monthly = new Map();
+  rows.forEach(note => {
+    const date = dateKey(note.date);
+    if (note.status !== "valid" || !date) return;
+    const key = date.slice(0,7);
+    monthly.set(key,(monthly.get(key) || 0) + note.value);
+  });
+  const keys = [...monthly.keys()].sort().slice(-6);
+  const chart = $("#chart-area");
+  chart.replaceChildren();
+  if (!keys.length) {
+    const message = document.createElement("p");
+    message.className = "empty-row";
+    message.textContent = "Sem notas válidas com data para o gráfico.";
+    chart.append(message);
     return;
   }
-  feedback.replaceChildren();
-  const summary = document.createElement("strong");
-  summary.textContent = `${xmlFiles.length} ${xmlFiles.length === 1 ? "arquivo XML selecionado" : "arquivos XML selecionados"}. `;
-  feedback.append(summary, document.createTextNode("A análise dos arquivos estará disponível na próxima etapa."));
-  if (files.length !== xmlFiles.length) feedback.append(document.createTextNode(" Arquivos de outros formatos foram ignorados."));
+  const max = Math.max(...keys.map(key => monthly.get(key)));
+  const scale = document.createElement("div");
+  scale.className = "grid-lines";
+  [max,max*2/3,max/3,0].forEach(amount => {
+    const tick = document.createElement("span");
+    tick.textContent = amount >= 1000 ? Math.round(amount/1000) + " mil" : Math.round(amount);
+    scale.append(tick);
+  });
+  const bars = document.createElement("div");
+  bars.className = "bars";
+  keys.forEach(key => {
+    const item = document.createElement("div");
+    const bar = document.createElement("span");
+    bar.style.setProperty("--bar",Math.max(5,monthly.get(key)/max*90) + "%");
+    bar.title = key + ": " + money.format(monthly.get(key));
+    const caption = document.createElement("small");
+    caption.textContent = monthFormat.format(new Date(key + "-01T00:00:00Z")).toUpperCase().replace(".","");
+    item.append(bar,caption);
+    bars.append(item);
+  });
+  chart.append(scale,bars);
 }
 
-document.querySelector("#year").textContent = new Date().getFullYear();
+function render() {
+  const rows = filteredNotes();
+  renderTable(rows);
+  renderSummary(rows);
+  renderChart(rows);
+  $("#export-button").disabled = demo || !rows.length;
+  $("#export-button").classList.toggle("button-disabled",demo || !rows.length);
+}
+
+function receiveNotes(incoming) {
+  if (!Array.isArray(incoming) || incoming.length > 10000) return;
+  notes = incoming.map(item => {
+    if (!item || typeof item !== "object") return null;
+    const value = Number(item.value);
+    return {
+      number:String(item.number || "").slice(0,80),
+      client:String(item.client || "").slice(0,250),
+      date:String(item.date || "").slice(0,30),
+      value:Number.isFinite(value) ? value : 0,
+      status:Object.hasOwn(labels,item.status) ? item.status : "unknown",
+      rawStatus:String(item.rawStatus || "").slice(0,160)
+    };
+  }).filter(Boolean);
+  demo = false;
+  $("#search-input").value = "";
+  $("#status-filter").value = "all";
+  $("#date-from").value = "";
+  $("#date-to").value = "";
+  $("#data-description").textContent = "Notas coletadas da sua sessão no portal. Use os filtros para explorar.";
+  $("#data-label").textContent = "DADOS DO PORTAL";
+  $("#source-label").textContent = "Coletadas do portal";
+  $("#portal-feedback").hidden = false;
+  $("#portal-feedback").textContent = notes.length + " notas recebidas do portal. Os dados ficam somente nesta aba.";
+  render();
+  $("#visualizacao").scrollIntoView({behavior:"smooth"});
+}
+
+window.addEventListener("message",event => {
+  if (event.source !== window || event.origin !== location.origin || event.data?.source !== "nfse-analyzer-extension") return;
+  if (event.data.type === "ready") $("#connection-badge").textContent = "Complemento conectado";
+  if (event.data.type === "notes") receiveNotes(event.data.notes);
+});
+
+["#search-input","#status-filter","#date-from","#date-to"].forEach(selector => {
+  $(selector).addEventListener(selector === "#search-input" ? "input" : "change",render);
+});
+
+function csvCell(value) {
+  let text = String(value ?? "");
+  if (/^\s*[=+\-@]/.test(text)) text = "'" + text;
+  return '"' + text.replaceAll('"','""') + '"';
+}
+$("#export-button").addEventListener("click",() => {
+  if (demo) return;
+  const rows = [["Número","Cliente","Emissão","Valor (R$)","Situação","Situação original"]];
+  filteredNotes().forEach(note => rows.push([note.number,note.client,note.date,note.value.toFixed(2).replace(".",","),labels[note.status],note.rawStatus]));
+  const csv = "\uFEFF" + rows.map(row => row.map(csvCell).join(";")).join("\r\n");
+  const url = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "nfse-analyzer-notas.csv";
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url),1000);
+});
+
+$("#year").textContent = new Date().getFullYear();
+render();
