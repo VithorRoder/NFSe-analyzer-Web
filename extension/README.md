@@ -13,6 +13,10 @@ Este complemento lê a tabela de **NFS-e emitidas** na aba autenticada do portal
 
 O complemento ainda não está publicado na Chrome Web Store. A instalação acima é a forma de testar esta primeira versão.
 
+## Pacote para a Chrome Web Store
+
+No repositório, execute `python scripts/package_extension.py`. O arquivo gerado em `dist/` contém `manifest.json` na raiz, os scripts e os ícones PNG. Envie esse ZIP pelo painel de desenvolvedor da Chrome Web Store após testar a coleta com uma conta real e completar as informações de privacidade da loja.
+
 ## Usar
 
 1. Abra https://nfseanalyzer.vercel.app/ em uma aba.

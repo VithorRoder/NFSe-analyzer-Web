@@ -4,6 +4,12 @@
   "version": "0.1.0",
   "description": "Lê as notas da aba autenticada do portal NFS-e e entrega ao NFSe Analyzer.",
   "minimum_chrome_version": "102",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
   "permissions": ["scripting", "tabs"],
   "host_permissions": [
     "https://www.nfse.gov.br/*",
@@ -12,7 +18,13 @@
   "background": {"service_worker": "background.js"},
   "action": {
     "default_title": "Coletar notas do portal NFS-e",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
   },
   "content_scripts": [{
     "matches": ["https://nfseanalyzer.vercel.app/*"],
