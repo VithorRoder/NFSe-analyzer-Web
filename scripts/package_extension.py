@@ -15,6 +15,7 @@ output = output_dir / f"nfse-analyzer-chrome-{version}.zip"
 
 files = [
     EXTENSION / "manifest.json",
+    EXTENSION / "README.md",
     EXTENSION / "background.js",
     EXTENSION / "popup.html",
     EXTENSION / "popup.js",
