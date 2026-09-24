@@ -41,10 +41,36 @@
       cursor: not-allowed
     }
 
-    #test-adn {
+    #open-site {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #586be6, #4158cf);
+      box-shadow: 0 9px 20px #4258cf33;
+      font-size: 14px;
+      text-align: left
+    }
+
+    #open-site:hover {
+      background: linear-gradient(135deg, #4b60df, #354cc4)
+    }
+
+    #open-site span {
+      font-size: 20px;
+      line-height: 1
+    }
+
+    #select-certificate {
       margin-top: 12px;
       background: #edf1ff;
       color: #4056a8
+    }
+
+    .certificate-note {
+      margin: 12px 0 0;
+      font-size: 12px
     }
 
   </style>
@@ -53,9 +79,10 @@
 
 <body>
   <h1>NFSe Analyzer</h1>
-  <p>Use o certificado selecionado no Chrome para baixar XMLs pelo ADN e organizar as notas no site.</p>
-  <button id="open-site" type="button">Abrir NFSe Analyzer</button>
-  <button id="test-adn" type="button">Testar acesso ao ADN</button>
+  <p>Escolha o certificado no Chrome e depois baixe e organize as notas no site.</p>
+  <button id="open-site" type="button">Acessar site e baixar notas <span aria-hidden="true">↗</span></button>
+  <button id="select-certificate" type="button">Selecionar certificado</button>
+  <p class="certificate-note">O Chrome pode reutilizar uma escolha anterior. Para alternar empresas com segurança, use perfis separados do Chrome.</p>
 </body>
 
 </html>

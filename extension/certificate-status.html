@@ -15,6 +15,7 @@
     .error .icon { background: #fff0ef; color: #b54c4c; }
     h1 { margin: 0 0 12px; font-size: 28px; }
     p { margin: 0; color: #65728c; line-height: 1.55; }
+    .hint { margin-top: 18px; font-size: 13px; }
     button { display: none; margin: 24px auto 0; padding: 11px 22px; border: 0; border-radius: 10px; background: #586be6; color: white; font: inherit; font-weight: 700; cursor: pointer; }
     .error button { display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -29,7 +30,8 @@
     <div id="icon" class="icon" aria-hidden="true"></div>
     <h1 id="title">Verificando certificado…</h1>
     <p id="description">O Chrome pode solicitar que você selecione seu certificado digital.</p>
-    <button id="retry" type="button">Tentar novamente</button>
+    <p class="hint">Se o Chrome já escolheu um certificado para o ADN, ele pode reutilizá-lo sem mostrar a lista. A extensão não consegue trocar essa escolha automaticamente.</p>
+    <button id="retry" type="button">Tentar selecionar novamente</button>
   </main>
 </body>
 
