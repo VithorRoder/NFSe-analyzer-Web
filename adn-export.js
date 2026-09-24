@@ -4,6 +4,7 @@ const adnStopButton = document.querySelector("#adn-stop-button");
 const adnFeedback = document.querySelector("#adn-feedback");
 const adnFullPackage = document.querySelector("#adn-full-package");
 const adnDirectFilters = document.querySelector("#adn-direct-filters");
+const adnDirectHelp = document.querySelector("#adn-direct-help");
 const adnDirectCompany = document.querySelector("#adn-direct-company");
 const adnDirectDirection = document.querySelector("#adn-direct-direction");
 const adnDirectFrom = document.querySelector("#adn-direct-from");
@@ -17,6 +18,7 @@ let adnNextNsu = 0;
 
 adnFullPackage.addEventListener("change", () => {
   adnDirectFilters.hidden = !adnFullPackage.checked;
+  adnDirectHelp.hidden = !adnFullPackage.checked;
   adnExportButton.textContent = adnFullPackage.checked ? "Baixar pacote completo" : "Baixar XMLs em ZIP";
 });
 
@@ -44,6 +46,18 @@ function requestAdnBatch(nsu) {
 
 function safeAdnName(value, fallback) {
   return String(value || fallback).replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 70) || fallback;
+}
+
+function inferAdnCompany(notes) {
+  if (!notes.length) return "";
+  const ids = note => new Set([note.issuerId, note.recipientId].filter(Boolean));
+  const common = ids(notes[0]);
+  for (const note of notes.slice(1)) {
+    const present = ids(note);
+    for (const id of common) if (!present.has(id)) common.delete(id);
+    if (!common.size) return "";
+  }
+  return common.size === 1 ? [...common][0] : "";
 }
 
 async function decodeAdnXml(base64) {
@@ -91,8 +105,8 @@ adnExportButton.addEventListener("click", async () => {
   const format = adnDirectFormat.value;
   const from = adnDirectFrom.value;
   const to = adnDirectTo.value;
-  if (full && ((company && ![11, 14].includes(company.length)) || (directionFilter && !company) || (from && to && from > to))) {
-    adnFeedback.textContent = "Confira o CNPJ/CPF e o período. Para filtrar a direção, informe a empresa.";
+  if (full && ((company && ![11, 14].includes(company.length)) || (from && to && from > to))) {
+    adnFeedback.textContent = "Confira o CNPJ/CPF e o período informado.";
     return;
   }
   adnRunning = true;
@@ -139,14 +153,22 @@ adnExportButton.addEventListener("click", async () => {
       let exported = 0;
       if (full) {
         adnLinkEvents(notes, events);
+        const resolvedCompany = company || (directionFilter ? inferAdnCompany(notes) : "");
+        if (directionFilter && !resolvedCompany) {
+          await saveAdnZip(zip, startNsu, cursor, count, complete && !error);
+          adnFeedback.textContent = "Não foi possível identificar uma única empresa neste lote. O ZIP original foi salvo; informe o CNPJ/CPF para separar emitidas e recebidas.";
+          adnNextNsu = complete ? 0 : cursor;
+          adnExportButton.textContent = complete ? "Baixar pacote completo" : `Continuar do NSU ${cursor}`;
+          return;
+        }
         const selected = notes.filter(note => {
-          const direction = note.issuerId === company ? "issued" : note.recipientId === company ? "received" : "other";
+          const direction = note.issuerId === resolvedCompany ? "issued" : note.recipientId === resolvedCompany ? "received" : "other";
           const month = note.issue.slice(0, 7);
-          return (!company || (direction !== "other" && (!directionFilter || directionFilter === direction))) &&
+          return (!resolvedCompany || (direction !== "other" && (!directionFilter || directionFilter === direction))) &&
             (!from || month >= from) && (!to || month <= to);
         });
         if (selected.length) {
-          const packageResult = await adnCreatePackage(selected, company, {
+          const packageResult = await adnCreatePackage(selected, resolvedCompany, {
             includePdf: format === "all", includeXlsx: format !== "xml-only",
             onProgress: message => { adnFeedback.textContent = message; }
           });
