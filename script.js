@@ -235,10 +235,11 @@ $("#export-button").addEventListener("click",async () => {
     summary.columns = [{width:31},{width:21}];
     summary.addRow(["Indicador","Valor"]);
     const count = {valid:0,cancelled:0,substituted:0,unknown:0};
-    const totals = {valid:0,cancelled:0};
+    const totals = {valid:0,cancelled:0,substituted:0,all:0};
     rows.forEach(note => {
       count[note.status]++;
-      if (note.status === "valid" || note.status === "cancelled") totals[note.status] += note.value;
+      totals.all += note.value;
+      if (note.status === "valid" || note.status === "cancelled" || note.status === "substituted") totals[note.status] += note.value;
     });
     [
       ["Quantidade total lida",rows.length],
@@ -247,10 +248,12 @@ $("#export-button").addEventListener("click",async () => {
       ["Notas substituídas",count.substituted],
       ["Notas não identificadas",count.unknown],
       ["Total notas válidas",totals.valid],
-      ["Total notas canceladas",totals.cancelled]
+      ["Total notas canceladas",totals.cancelled],
+      ["Total notas substituídas",totals.substituted],
+      ["Total geral",totals.all]
     ].forEach(item => summary.addRow(item));
     styleHeader(summary);
-    [7,8].forEach(row => { summary.getCell(`B${row}`).numFmt = '"R$" #,##0.00'; });
+    [7,8,9,10].forEach(row => { summary.getCell(`B${row}`).numFmt = '"R$" #,##0.00'; });
     summary.views = [{state:"frozen",ySplit:1}];
 
     const sheet = workbook.addWorksheet("Notas");
