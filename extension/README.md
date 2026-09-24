@@ -1,44 +1,25 @@
 # Complemento Chrome — NFSe Analyzer
 
-Este complemento lê a tabela de **NFS-e emitidas** na aba autenticada do portal nacional e entrega as notas diretamente à aba de https://nfseanalyzer.vercel.app/. O site exibe totais e filtros de válidas, canceladas, substituídas e situações não identificadas. A coleta não lê senha ou cookies e não envia dados fiscais a um servidor do projeto.
+O complemento conecta o site [NFSe Analyzer](https://nfseanalyzer.vercel.app/) à API oficial do ADN. O Chrome apresenta o certificado digital quando necessário; o complemento não lê o arquivo `.pfx` nem sua senha. Os XMLs retornados são entregues à aba do site, onde são processados e compactados localmente.
 
 ## Instalar para teste
 
-1. Baixe o repositório como ZIP no GitHub e extraia os arquivos, ou clone o repositório.
-2. No Chrome, abra chrome://extensions.
-3. Ative **Modo do desenvolvedor**.
-4. Clique em **Carregar sem compactação** e escolha a pasta extension extraída.
-5. Fixe o ícone do NFSe Analyzer na barra do Chrome.
-6. Se o site já estava aberto, recarregue a aba para ativar a conexão com o complemento.
+A versão da Chrome Web Store ainda está em rascunho. Até a publicação:
 
-O complemento ainda não está publicado na Chrome Web Store. A instalação acima é a forma de testar esta primeira versão.
+1. [Baixe o repositório em ZIP](https://github.com/VithorRoder/NFSe-analyzer-Web/archive/refs/heads/main.zip) e extraia os arquivos.
+2. No Chrome, abra `chrome://extensions` e ative **Modo do desenvolvedor**.
+3. Clique em **Carregar sem compactação** e selecione a pasta `extension` extraída.
+4. Abra ou recarregue [o site](https://nfseanalyzer.vercel.app/).
+
+## Baixar notas pelo ADN
+
+1. Selecione o certificado digital no Chrome quando solicitado.
+2. No site, clique em **Baixar XMLs pelo ADN**. Para obter XMLs, PDFs de conferência, planilha e visualizador em um único pacote, marque **Gerar pacote completo em uma operação** e escolha os filtros.
+3. Se a conexão falhar, clique no ícone do complemento, use **Abrir ADN e selecionar certificado** e repita o teste de acesso.
+4. O ADN é consultado por NSU. Cada ZIP contém até 5.000 documentos; se houver mais, use **Continuar do NSU** na mesma aba.
+
+A consulta retorna documentos autorizados ao certificado e não depende da listagem de notas emitidas do portal. Os filtros de empresa e período são aplicados localmente depois que o lote é recebido. O complemento não valida criptograficamente a assinatura dos XMLs.
 
 ## Pacote para a Chrome Web Store
 
-No repositório, execute `python scripts/package_extension.py`. O arquivo gerado em `dist/` contém `manifest.json` na raiz, os scripts e os ícones PNG. Envie esse ZIP pelo painel de desenvolvedor da Chrome Web Store após testar a coleta com uma conta real e completar as informações de privacidade da loja.
-
-## Usar
-
-1. Abra https://nfseanalyzer.vercel.app/ em uma aba.
-2. Abra https://www.nfse.gov.br/EmissorNacional em outra aba e faça login normalmente.
-3. Acesse **NFS-e emitidas** e ajuste os filtros do próprio portal para o conjunto desejado.
-4. Com a aba do portal ativa, clique no ícone do complemento e em **Coletar notas desta listagem**.
-5. O complemento percorre os links de paginação pg=N, abre o site e entrega as notas. No site, você pode buscar, filtrar por situação e data, e exportar o resultado em CSV ou XLSX. Quando o portal expõe o comando de XML na linha, a tabela mostra **Baixar XML**. Esse botão volta à página da nota no portal e aciona o comando original. Resolva o CAPTCHA manualmente quando solicitado. Depois de atualizar o complemento, recarregue o site e faça uma nova coleta para receber os vínculos das páginas.
-
-## Testar acesso à API com certificado
-
-Depois de instalar o certificado A1 no armazenamento de certificados usado pelo Chrome, recarregue o complemento em `chrome://extensions` e clique em **Testar acesso ao ADN** no popup. O teste faz uma única consulta com NSU 0 à API de produção e mostra o código HTTP, sem ler ou enviar o arquivo `.pfx` ou sua senha ao site. O Chrome pode pedir que você selecione o certificado. Um código HTTP indica que a conexão chegou ao servidor, mas não comprova autorização para consultar as notas do CNPJ. HTTP 401/403 indica que a consulta não foi autorizada. Falhas de rede ou certificado também podem aparecer como erro genérico; o teste não baixa XMLs.
-
-Se aparecer **Failed to fetch**, use **Abrir ADN e selecionar certificado**. O Chrome abre a documentação oficial do ADN; selecione o certificado do CNPJ caso seja solicitado. Em seguida, abra o popup e repita o teste. Se a página também não abrir ou o teste continuar falhando, o erro pode estar na configuração do certificado ou na conexão TLS do Chrome. O complemento não consegue identificar a causa exata apenas pela mensagem `Failed to fetch`.
-
-Após o teste retornar HTTP 200, abra o site atualizado e use **Baixar XMLs em ZIP**. A extensão consulta a API do ADN em lotes por NSU, e o site monta o ZIP localmente. O botão de parar salva o lote parcial; o limite é de 5.000 documentos por arquivo, com continuação pelo último NSU na mesma aba. O conjunto retornado pelo certificado não segue os filtros da tabela de notas emitidas.
-
-Para filtrar e organizar o material baixado, use **Organizar um ZIP baixado do ADN** no site. Essa etapa separa emitidas e recebidas para a empresa selecionada, associa eventos a NFS-e pela chave e gera um novo ZIP com pastas por empresa, direção, competência e situação, além de uma planilha de conferência.
-
-## Limites desta versão
-
-- A leitura depende da estrutura atual da tabela do portal. Mudanças no HTML podem exigir ajustes.
-- A paginação automática usa links com parâmetro pg=N, como no aplicativo Python original. Se o portal usar outro tipo de paginação, somente a página atual será coletada.
-- Quando a situação não aparece claramente na coluna correspondente, a nota fica como **Não identificada** e é excluída do total válido.
-- A coleta da tabela do portal lê apenas **notas emitidas**. A consulta ao ADN também baixa os eventos que ele distribuir ao certificado. A assinatura digital dos XMLs não é validada criptograficamente.
-- Os dados ficam na memória da aba do site. Fechar ou atualizar a aba limpa a análise.
+Execute `python scripts/package_extension.py` na raiz do repositório. O ZIP em `dist/` contém o `manifest.json`, os scripts e os ícones da extensão. Ao atualizar o rascunho da loja, envie a nova versão do pacote e revise as informações de privacidade e da ficha do item.

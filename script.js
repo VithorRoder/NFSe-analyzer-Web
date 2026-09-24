@@ -233,18 +233,6 @@ function receiveNotes(incoming) {
 window.addEventListener("message", event => {
   if (event.source !== window || event.origin !== location.origin || event.data?.source !== "nfse-analyzer-extension") return;
   if (event.data.type === "ready") $("#connection-badge").textContent = "Complemento conectado";
-  if (event.data.type === "notes") receiveNotes(event.data.notes);
-  if (event.data.type === "xml-open-result") {
-    const pending = xmlRequests.get(event.data.requestId);
-    if (!pending) return;
-    clearTimeout(pending.timeout);
-    xmlRequests.delete(event.data.requestId);
-    pending.button.disabled = false;
-    pending.button.textContent = "Baixar XML";
-    $("#xml-action-feedback").textContent = event.data.ok
-      ? "Download acionado no portal. Resolva o CAPTCHA na aba aberta para salvar o XML."
-      : (event.data.error || "Não foi possível acionar o download no portal.");
-  }
 });
 
 ["#search-input", "#status-filter", "#date-from", "#date-to"].forEach(selector => {

@@ -1311,6 +1311,38 @@ td:nth-child(4) {
     box-shadow: 0 16px 32px #526fac12
 }
 
+.install-banner {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    margin-bottom: 18px;
+    padding: 27px;
+    border: 1px solid #b8c7ff;
+    border-radius: 18px;
+    background: linear-gradient(115deg, #e9eeff, #f8faff 65%);
+    box-shadow: 0 18px 38px #526fac1c
+}
+
+.install-banner-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #dbe4ff;
+    color: #455fce;
+    font-size: 27px
+}
+
+.install-banner-copy { flex: 1 }
+.install-banner-copy h3 { margin: 5px 0; font: 800 20px Manrope, sans-serif; color: #1b2741 }
+.install-banner-copy p { margin: 0; max-width: 620px; color: #5b6984; line-height: 1.55 }
+.install-banner-actions { display: grid; justify-items: center; gap: 10px }
+.install-banner-actions .button { white-space: nowrap }
+.install-banner-actions > a:last-child { color: #455fce; font-weight: 700; text-decoration: none }
+.install-banner-actions > a:last-child:hover { text-decoration: underline }
+
 .portal-panel + .portal-panel {
     margin-top: 18px
 }
@@ -1527,6 +1559,9 @@ td:nth-child(4) {
 }
 
 @media(max-width:700px) {
+    .install-banner { flex-wrap: wrap; padding: 20px; gap: 14px }
+    .install-banner-actions { width: 100%; justify-items: stretch }
+    .install-banner-actions .button { text-align: center }
     .portal-panel {
         padding: 20px;
         gap: 14px

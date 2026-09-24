@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "NFSe Analyzer — Portal",
-  "version": "0.1.4",
-  "description": "Lê as notas da aba autenticada do portal NFS-e e entrega ao NFSe Analyzer.",
+  "version": "0.1.5",
+  "description": "Consulta XMLs de NFS-e pelo ADN com o certificado selecionado no Chrome para análise local.",
   "minimum_chrome_version": "102",
   "icons": {
     "16": "icons/icon-16.png",
@@ -10,12 +10,7 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "permissions": [
-    "scripting",
-    "tabs"
-  ],
   "host_permissions": [
-    "https://www.nfse.gov.br/*",
     "https://adn.nfse.gov.br/*",
     "https://nfseanalyzer.vercel.app/*"
   ],
@@ -23,7 +18,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Coletar notas do portal NFS-e",
+    "default_title": "Baixar NFS-e pelo ADN",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon-16.png",

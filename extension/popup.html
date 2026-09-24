@@ -41,12 +41,6 @@
       cursor: not-allowed
     }
 
-    #status {
-      margin-top: 12px;
-      min-height: 20px;
-      color: #53617b
-    }
-
     #test-adn {
       margin-top: 12px;
       background: #edf1ff;
@@ -71,9 +65,8 @@
 
 <body>
   <h1>NFSe Analyzer</h1>
-  <p>Entre no portal, abra <strong>NFS-e emitidas</strong> e aplique os filtros desejados antes de coletar.</p>
-  <button id="collect" type="button">Coletar notas desta listagem</button>
-  <div id="status" role="status" aria-live="polite"></div>
+  <p>Use o certificado selecionado no Chrome para baixar XMLs pelo ADN e organizar as notas no site.</p>
+  <button id="open-site" type="button">Abrir NFSe Analyzer</button>
   <button id="test-adn" type="button">Testar acesso ao ADN</button>
   <div id="adn-status" role="status" aria-live="polite"></div>
   <button id="open-adn" type="button">Abrir ADN e selecionar certificado</button>
