@@ -29,6 +29,8 @@ No repositório, execute `python scripts/package_extension.py`. O arquivo gerado
 
 Depois de instalar o certificado A1 no armazenamento de certificados usado pelo Chrome, recarregue o complemento em `chrome://extensions` e clique em **Testar acesso ao ADN** no popup. O teste faz uma única consulta com NSU 0 à API de produção e mostra o código HTTP, sem ler ou enviar o arquivo `.pfx` ou sua senha ao site. O Chrome pode pedir que você selecione o certificado. Um código HTTP indica que a conexão chegou ao servidor, mas não comprova autorização para consultar as notas do CNPJ. HTTP 401/403 indica que a consulta não foi autorizada. Falhas de rede ou certificado também podem aparecer como erro genérico; o teste não baixa XMLs.
 
+Se aparecer **Failed to fetch**, use **Abrir ADN e selecionar certificado**. O Chrome abre a documentação oficial do ADN; selecione o certificado do CNPJ caso seja solicitado. Em seguida, abra o popup e repita o teste. Se a página também não abrir ou o teste continuar falhando, o erro pode estar na configuração do certificado ou na conexão TLS do Chrome. O complemento não consegue identificar a causa exata apenas pela mensagem `Failed to fetch`.
+
 ## Limites desta versão
 
 - A leitura depende da estrutura atual da tabela do portal. Mudanças no HTML podem exigir ajustes.
