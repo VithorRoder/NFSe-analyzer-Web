@@ -3,8 +3,18 @@ const PORTAL_ORIGIN = "https://www.nfse.gov.br";
 let collecting = false;
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message?.type !== "NFSE_COLLECT") return;
   if (sender.id !== chrome.runtime.id) return;
+  if (message?.type === "NFSE_OPEN_XML") {
+    if (!sender.tab?.url?.startsWith(SITE_URL)) {
+      sendResponse({ ok: false, error: "Solicitação fora do NFSe Analyzer." });
+      return;
+    }
+    openPortalXml(message.pageUrl, message.xmlUrl)
+      .then(() => sendResponse({ ok: true }))
+      .catch(error => sendResponse({ ok: false, error: error.message || "Falha ao abrir o XML no portal." }));
+    return true;
+  }
+  if (message?.type !== "NFSE_COLLECT") return;
   if (collecting) {
     sendResponse({ ok: false, error: "Já existe uma coleta em andamento." });
     return;
@@ -16,6 +26,40 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     .finally(() => { collecting = false; });
   return true;
 });
+
+async function openPortalXml(pageUrlText, xmlUrlText) {
+  const pageUrl = new URL(pageUrlText);
+  const xmlUrl = new URL(xmlUrlText);
+  if (pageUrl.origin !== PORTAL_ORIGIN || pageUrl.pathname !== "/EmissorNacional/Notas/Emitidas" ||
+    xmlUrl.origin !== PORTAL_ORIGIN || !/^\/EmissorNacional\/Notas\/Download\/NFSe\/[A-Za-z0-9]+\/?$/i.test(xmlUrl.pathname)) {
+    throw new Error("Link de XML inválido.");
+  }
+  const tabs = await chrome.tabs.query({ url: PORTAL_ORIGIN + "/*" });
+  const portal = tabs.find(tab => {
+    try { return new URL(tab.url).pathname === pageUrl.pathname; } catch { return false; }
+  });
+  if (!portal) throw new Error("Abra a página de notas emitidas no portal e tente novamente.");
+  if (portal.url !== pageUrl.href) await navigate(portal.id, pageUrl.href);
+  await chrome.tabs.update(portal.id, { active: true });
+  await chrome.windows.update(portal.windowId, { focused: true });
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const [injection] = await chrome.scripting.executeScript({
+      target: { tabId: portal.id },
+      func: clickPortalXml,
+      args: [xmlUrl.href]
+    });
+    if (injection?.result) return;
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  throw new Error("Não encontrei o comando Download XML nessa página do portal. Refaça a coleta e tente novamente.");
+}
+
+function clickPortalXml(xmlUrl) {
+  const link = [...document.querySelectorAll("a[href]")].find(item => item.href === xmlUrl);
+  if (!link) return false;
+  link.click();
+  return true;
+}
 
 async function collect(tabId) {
   const tab = await chrome.tabs.get(tabId);
@@ -139,6 +183,7 @@ function readPortalPage() {
       number: cells[numberIndex] || "",
       client, date, value, status, rawStatus: rawStatus || iconStatus,
       xmlUrl: xmlLink?.href || "",
+      pageUrl: location.href,
       pageRow: rowIndex
     });
   });

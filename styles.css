@@ -1494,6 +1494,9 @@ td:nth-child(4) {
 }
 
 .xml-download-link {
+    border: 0;
+    padding: 0;
+    background: transparent;
     color: #4568e7;
     font-weight: 700;
     white-space: nowrap
@@ -1501,6 +1504,17 @@ td:nth-child(4) {
 
 .xml-download-link:hover {
     text-decoration: underline
+}
+
+.xml-download-link:disabled {
+    opacity: .6;
+    cursor: wait
+}
+
+.xml-action-feedback {
+    margin: 0;
+    color: #64718b;
+    font-size: 12px
 }
 
 @media(max-width:600px) {

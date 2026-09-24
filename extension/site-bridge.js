@@ -6,4 +6,29 @@ if (location.origin === "https://nfseanalyzer.vercel.app") {
       sendResponse({ ok: true });
     }
   });
+  window.addEventListener("message", event => {
+    if (event.source !== window || event.origin !== location.origin ||
+      event.data?.source !== "nfse-analyzer-site" || event.data.type !== "open-xml") return;
+    chrome.runtime.sendMessage({
+      type: "NFSE_OPEN_XML",
+      pageUrl: event.data.pageUrl,
+      xmlUrl: event.data.xmlUrl
+    }).then(response => {
+      window.postMessage({
+        source: "nfse-analyzer-extension",
+        type: "xml-open-result",
+        requestId: event.data.requestId,
+        ok: !!response?.ok,
+        error: response?.error || ""
+      }, location.origin);
+    }).catch(error => {
+      window.postMessage({
+        source: "nfse-analyzer-extension",
+        type: "xml-open-result",
+        requestId: event.data.requestId,
+        ok: false,
+        error: error.message || "Falha ao comunicar com o complemento."
+      }, location.origin);
+    });
+  });
 }

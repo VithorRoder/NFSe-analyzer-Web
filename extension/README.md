@@ -23,7 +23,7 @@ No repositório, execute `python scripts/package_extension.py`. O arquivo gerado
 2. Abra https://www.nfse.gov.br/EmissorNacional em outra aba e faça login normalmente.
 3. Acesse **NFS-e emitidas** e ajuste os filtros do próprio portal para o conjunto desejado.
 4. Com a aba do portal ativa, clique no ícone do complemento e em **Coletar notas desta listagem**.
-5. O complemento percorre os links de paginação pg=N, abre o site e entrega as notas. No site, você pode buscar, filtrar por situação e data, e exportar o resultado em CSV ou XLSX. Quando o portal expõe o link de XML na linha, a tabela mostra **Baixar XML**; esse link abre o download oficial no portal e pode exigir que você resolva o CAPTCHA manualmente.
+5. O complemento percorre os links de paginação pg=N, abre o site e entrega as notas. No site, você pode buscar, filtrar por situação e data, e exportar o resultado em CSV ou XLSX. Quando o portal expõe o comando de XML na linha, a tabela mostra **Baixar XML**. Esse botão volta à página da nota no portal e aciona o comando original. Resolva o CAPTCHA manualmente quando solicitado. Depois de atualizar o complemento, recarregue o site e faça uma nova coleta para receber os vínculos das páginas.
 
 ## Limites desta versão
 

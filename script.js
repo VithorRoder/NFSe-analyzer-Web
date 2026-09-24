@@ -12,6 +12,7 @@ const monthFormat = new Intl.DateTimeFormat("pt-BR", { month: "short", year: "2-
 const $ = selector => document.querySelector(selector);
 let notes = example;
 let demo = true;
+const xmlRequests = new Map();
 
 function dateKey(value) {
   const br = String(value || "").match(/^(\d{2})\/(\d{2})\/(\d{4})/);
@@ -59,15 +60,14 @@ function renderTable(rows) {
     td.append(badge);
     tr.append(td);
     const xmlCell = document.createElement("td");
-    if (note.xmlUrl) {
-      const link = document.createElement("a");
-      link.href = note.xmlUrl;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.className = "xml-download-link";
-      link.textContent = "Baixar XML";
-      link.title = "Abre o download oficial no portal; você poderá precisar resolver o CAPTCHA.";
-      xmlCell.append(link);
+    if (note.xmlUrl && note.pageUrl) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "xml-download-link";
+      button.textContent = "Baixar XML";
+      button.title = "Aciona o download na aba do portal; resolva o CAPTCHA quando solicitado.";
+      button.addEventListener("click", () => openXmlInPortal(note, button));
+      xmlCell.append(button);
     } else {
       xmlCell.textContent = "—";
     }
@@ -75,6 +75,29 @@ function renderTable(rows) {
     body.append(tr);
   });
   $("#result-count").textContent = rows.length + " de " + notes.length + " notas exibidas";
+}
+
+function openXmlInPortal(note, button) {
+  const requestId = crypto.randomUUID();
+  button.disabled = true;
+  button.textContent = "Abrindo…";
+  $("#xml-action-feedback").textContent = "Abrindo o download na aba do portal…";
+  const timeout = setTimeout(() => {
+    const pending = xmlRequests.get(requestId);
+    if (!pending) return;
+    xmlRequests.delete(requestId);
+    pending.button.disabled = false;
+    pending.button.textContent = "Baixar XML";
+    $("#xml-action-feedback").textContent = "O complemento não respondeu. Recarregue o site e o complemento e tente novamente.";
+  }, 30000);
+  xmlRequests.set(requestId, { button, timeout });
+  window.postMessage({
+    source: "nfse-analyzer-site",
+    type: "open-xml",
+    requestId,
+    pageUrl: note.pageUrl,
+    xmlUrl: note.xmlUrl
+  }, location.origin);
 }
 
 function renderSummary(rows) {
@@ -167,6 +190,7 @@ function receiveNotes(incoming) {
     if (!item || typeof item !== "object") return null;
     const value = Number(item.value);
     let xmlUrl = "";
+    let pageUrl = "";
     try {
       const url = new URL(String(item.xmlUrl || ""));
       if (url.protocol === "https:" && ["www.nfse.gov.br", "nfse.gov.br"].includes(url.hostname) &&
@@ -174,6 +198,13 @@ function receiveNotes(incoming) {
         xmlUrl = url.href;
       }
     } catch { /* Sem link de XML disponível na linha. */ }
+    try {
+      const url = new URL(String(item.pageUrl || ""));
+      if (url.protocol === "https:" && ["www.nfse.gov.br", "nfse.gov.br"].includes(url.hostname) &&
+        url.pathname === "/EmissorNacional/Notas/Emitidas") {
+        pageUrl = url.href;
+      }
+    } catch { /* Sem página de origem disponível. */ }
     return {
       number: String(item.number || "").slice(0, 80),
       client: String(item.client || "").slice(0, 250),
@@ -181,7 +212,8 @@ function receiveNotes(incoming) {
       value: Number.isFinite(value) ? value : 0,
       status: Object.hasOwn(labels, item.status) ? item.status : "unknown",
       rawStatus: String(item.rawStatus || "").slice(0, 160),
-      xmlUrl
+      xmlUrl,
+      pageUrl
     };
   }).filter(Boolean);
   demo = false;
@@ -202,6 +234,17 @@ window.addEventListener("message", event => {
   if (event.source !== window || event.origin !== location.origin || event.data?.source !== "nfse-analyzer-extension") return;
   if (event.data.type === "ready") $("#connection-badge").textContent = "Complemento conectado";
   if (event.data.type === "notes") receiveNotes(event.data.notes);
+  if (event.data.type === "xml-open-result") {
+    const pending = xmlRequests.get(event.data.requestId);
+    if (!pending) return;
+    clearTimeout(pending.timeout);
+    xmlRequests.delete(event.data.requestId);
+    pending.button.disabled = false;
+    pending.button.textContent = "Baixar XML";
+    $("#xml-action-feedback").textContent = event.data.ok
+      ? "Download acionado no portal. Resolva o CAPTCHA na aba aberta para salvar o XML."
+      : (event.data.error || "Não foi possível acionar o download no portal.");
+  }
 });
 
 ["#search-input", "#status-filter", "#date-from", "#date-to"].forEach(selector => {
