@@ -22,7 +22,7 @@ Essa consulta abrange os documentos autorizados ao certificado, inclusive tipos 
 
 ## Organizar um ZIP do ADN
 
-Na seção **Organizar um ZIP baixado do ADN**, selecione o ZIP gerado pelo site. A página relaciona os eventos às notas pela chave de acesso: `e101101` marca cancelamento e `e105102` marca cancelamento por substituição. Quando um mesmo CNPJ/CPF aparece como prestador ou tomador de todas as notas, ele é selecionado automaticamente e o filtro começa em **Emitidas**. A tela mostra separadamente a quantidade de emitidas e recebidas; também permite filtrar por mês de emissão ou competência e situação. O novo ZIP contém os XMLs originais em pastas por empresa, direção, competência e situação, os eventos correspondentes e uma planilha Excel com resumo e detalhes financeiros. Todo o processamento acontece no navegador; a assinatura digital não é validada criptograficamente.
+Na seção **Organizar um ZIP baixado do ADN**, selecione o ZIP gerado pelo site. A página relaciona os eventos às notas pela chave de acesso: `e101101` marca cancelamento e `e105102` marca cancelamento por substituição. Quando um mesmo CNPJ/CPF aparece como prestador ou tomador de todas as notas, ele é selecionado automaticamente e o filtro começa em **Emitidas**. A tela mostra separadamente a quantidade de emitidas e recebidas; também permite filtrar por mês de emissão ou competência e situação. O novo ZIP contém os XMLs originais em pastas por empresa, direção, competência e situação, os eventos correspondentes e uma planilha Excel com resumo e detalhes financeiros. A opção **Incluir PDFs das notas** cria uma representação local de cada NFS-e com sua situação e os eventos associados. Esses PDFs servem para conferência e não substituem o XML original ou a consulta ao portal oficial. Todo o processamento acontece no navegador; a assinatura digital não é validada criptograficamente.
 
 ## XMLs já baixados
 
@@ -30,4 +30,4 @@ Na seção **Também tenho arquivos XML**, selecione até 1.000 XMLs de NFS-e (a
 
 ## Limites
 
-O portal pode mudar a estrutura da tabela ou da paginação. Situações ambíguas são marcadas como **Não identificada** e não são somadas como válidas. A consulta ADN salva os XMLs, mas não gera DANFSe nem valida assinaturas digitais. A listagem do portal continua limitada às notas emitidas.
+O portal pode mudar a estrutura da tabela ou da paginação. Situações ambíguas são marcadas como **Não identificada** e não são somadas como válidas. Os PDFs criados localmente ainda não reproduzem todos os campos, o QR Code ou o leiaute oficial do DANFSe da [Nota Técnica 008/2026, versão 1.02](https://www.gov.br/nfse/pt-br/biblioteca/documentacao-tecnica/rtc/nt-008-se-cgnfse-danfse-20260714-v1-02.pdf). A listagem do portal continua limitada às notas emitidas.

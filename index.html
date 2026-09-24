@@ -15,9 +15,11 @@
   <link rel="stylesheet" href="./styles.css" />
     <script src="./vendor/exceljs.min.js" defer></script>
     <script src="./vendor/jszip.min.js" defer></script>
+    <script src="./vendor/pdf-lib.min.js" defer></script>
     <script src="./script.js" defer></script>
     <script src="./xml-import.js" defer></script>
     <script src="./adn-export.js" defer></script>
+    <script src="./danfse.js" defer></script>
     <script src="./adn-organize.js" defer></script>
 </head>
 
@@ -138,7 +140,7 @@
           </div>
           <details class="alternative-import adn-organize" id="adn-organize">
             <summary>Organizar um ZIP baixado do ADN</summary>
-            <p>Selecione o ZIP para relacionar os eventos às notas e criar uma planilha com os XMLs organizados. Tudo é processado nesta aba.</p>
+            <p>Selecione o ZIP para relacionar os eventos às notas e criar uma planilha com os XMLs organizados. Você também pode incluir uma representação em PDF de cada nota. Tudo é processado nesta aba.</p>
             <div class="adn-organize-controls">
               <input id="adn-zip-input" type="file" accept=".zip,application/zip" aria-label="Selecionar ZIP do ADN" />
               <label>Empresa <select id="adn-company"><option value="">Todas</option></select></label>
@@ -147,6 +149,7 @@
               <label>De <input id="adn-month-from" type="month" /></label>
               <label>Até <input id="adn-month-to" type="month" /></label>
               <label>Situação <select id="adn-status-filter"><option value="">Todas</option><option value="valid">Válidas</option><option value="cancelled">Canceladas</option><option value="substituted">Substituídas</option></select></label>
+              <label class="adn-pdf-option"><input id="adn-include-pdf" type="checkbox" checked /> Incluir PDFs das notas</label>
               <button id="adn-organize-button" class="button button-primary" type="button" disabled>Gerar ZIP organizado</button>
             </div>
             <p id="adn-organize-feedback" role="status" aria-live="polite">Selecione um ZIP do ADN para começar.</p>

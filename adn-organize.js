@@ -7,6 +7,7 @@ const adnMonthFrom = document.querySelector("#adn-month-from");
 const adnMonthTo = document.querySelector("#adn-month-to");
 const adnStatusFilter = document.querySelector("#adn-status-filter");
 const adnOrganizeButton = document.querySelector("#adn-organize-button");
+const adnIncludePdf = document.querySelector("#adn-include-pdf");
 const adnOrganizeFeedback = document.querySelector("#adn-organize-feedback");
 let adnDocuments = null;
 
@@ -239,7 +240,7 @@ adnOrganizeButton.addEventListener("click", async () => {
     if (!notes.length) throw new Error("Nenhuma nota corresponde aos filtros escolhidos.");
     const zip = new JSZip();
     let eventCount = 0;
-    for (const note of notes) {
+    for (const [noteIndex, note] of notes.entries()) {
       const companyId = adnCompany.value || note.issuerId;
       const company = adnSafe(companyId, "sem-documento");
       const direction = note.issuerId === companyId ? "EMITIDAS" : note.recipientId === companyId ? "RECEBIDAS" : "OUTRAS";
@@ -247,6 +248,13 @@ adnOrganizeButton.addEventListener("click", async () => {
       const status = { valid: "VALIDAS", cancelled: "CANCELADAS", substituted: "SUBSTITUIDAS" }[note.status];
       const folder = `EMPRESAS/${company}/${direction}/${competence}/${status}`;
       zip.file(`${folder}/XML/${note.key}.xml`, note.bytes);
+      if (adnIncludePdf.checked) {
+        if (noteIndex % 10 === 0) {
+          adnOrganizeFeedback.textContent = `Gerando PDFs: ${noteIndex}/${notes.length}…`;
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+        zip.file(`${folder}/PDF/${note.key}.pdf`, await adnBuildNotePdf(note));
+      }
       for (const [index, event] of note.events.entries()) {
         zip.file(`${folder}/EVENTOS/${note.key}-${event.eventType}-${index + 1}.xml`, event.bytes);
         eventCount++;
@@ -254,7 +262,7 @@ adnOrganizeButton.addEventListener("click", async () => {
     }
     adnOrganizeFeedback.textContent = `Gerando planilha para ${notes.length} nota(s)…`;
     zip.file("RELATORIOS/notas-adn.xlsx", await adnBuildReport(notes, adnCompany.value));
-    zip.file("LEIA-ME.txt", `XMLs originais preservados. ${notes.length} NFS-e e ${eventCount} eventos associados. Situação derivada dos eventos e101101 (cancelamento) e e105102 (cancelamento por substituição). O relatório é de apoio; a assinatura digital não foi validada.\n`);
+    zip.file("LEIA-ME.txt", `XMLs originais preservados. ${notes.length} NFS-e e ${eventCount} eventos associados. Situação derivada dos eventos e101101 (cancelamento) e e105102 (cancelamento por substituição). O relatório e os PDFs são representações locais para conferência, não substituem o XML nem a consulta ao portal oficial. A assinatura digital não foi validada.\n`);
     const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -264,7 +272,7 @@ adnOrganizeButton.addEventListener("click", async () => {
     link.click();
     link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
-    adnOrganizeFeedback.textContent = `ZIP preparado: ${notes.length} NFS-e, ${eventCount} evento(s), planilha de conferência.`;
+    adnOrganizeFeedback.textContent = `ZIP preparado: ${notes.length} NFS-e, ${eventCount} evento(s), planilha${adnIncludePdf.checked ? ` e ${notes.length} PDF(s)` : ""}.`;
   } catch (error) {
     adnOrganizeFeedback.textContent = error.message || "Não foi possível organizar o ZIP.";
   } finally {

@@ -1395,6 +1395,20 @@ td:nth-child(4) {
     max-width: 100%
 }
 
+.adn-organize-controls .adn-pdf-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px
+}
+
+.adn-organize-controls .adn-pdf-option input {
+    min-height: 0;
+    width: 18px;
+    height: 18px;
+    margin: 0
+}
+
 .alternative-import summary {
     cursor: pointer;
     font-weight: 700
