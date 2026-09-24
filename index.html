@@ -17,6 +17,7 @@
     <script src="./vendor/jszip.min.js" defer></script>
     <script src="./script.js" defer></script>
     <script src="./xml-import.js" defer></script>
+    <script src="./adn-export.js" defer></script>
 </head>
 
 <body>
@@ -122,6 +123,18 @@
             </div>
           </div>
           <div id="portal-feedback" class="file-feedback" role="status" aria-live="polite" hidden></div>
+          <div class="portal-panel" aria-labelledby="adn-title">
+            <div class="portal-panel-icon" aria-hidden="true">↧</div>
+            <div class="portal-panel-copy">
+              <h3 id="adn-title">Baixar XMLs pelo ADN</h3>
+              <p>Use o certificado digital selecionado no Chrome para baixar os documentos autorizados pela API oficial. A consulta percorre os NSUs do certificado e não usa os filtros da listagem do portal.</p>
+              <div class="portal-actions">
+                <button id="adn-export-button" class="button button-primary" type="button">Baixar XMLs em ZIP</button>
+                <button id="adn-stop-button" class="button" type="button" hidden>Parar e salvar parcial</button>
+              </div>
+              <p id="adn-feedback" role="status" aria-live="polite">Até 5.000 documentos por ZIP. Se houver mais, continue a partir do NSU indicado.</p>
+            </div>
+          </div>
           <details class="alternative-import">
             <summary>Também tenho arquivos XML</summary>
             <p>Selecione XMLs oficiais de NFS-e que você já baixou. A análise acontece nesta aba, sem enviar os arquivos ao servidor.</p>

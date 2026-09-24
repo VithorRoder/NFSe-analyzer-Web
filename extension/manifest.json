@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NFSe Analyzer — Portal",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Lê as notas da aba autenticada do portal NFS-e e entrega ao NFSe Analyzer.",
   "minimum_chrome_version": "102",
   "icons": {

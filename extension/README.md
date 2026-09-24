@@ -31,6 +31,8 @@ Depois de instalar o certificado A1 no armazenamento de certificados usado pelo 
 
 Se aparecer **Failed to fetch**, use **Abrir ADN e selecionar certificado**. O Chrome abre a documentação oficial do ADN; selecione o certificado do CNPJ caso seja solicitado. Em seguida, abra o popup e repita o teste. Se a página também não abrir ou o teste continuar falhando, o erro pode estar na configuração do certificado ou na conexão TLS do Chrome. O complemento não consegue identificar a causa exata apenas pela mensagem `Failed to fetch`.
 
+Após o teste retornar HTTP 200, abra o site atualizado e use **Baixar XMLs em ZIP**. A extensão consulta a API do ADN em lotes por NSU, e o site monta o ZIP localmente. O botão de parar salva o lote parcial; o limite é de 5.000 documentos por arquivo, com continuação pelo último NSU na mesma aba. O conjunto retornado pelo certificado não segue os filtros da tabela de notas emitidas.
+
 ## Limites desta versão
 
 - A leitura depende da estrutura atual da tabela do portal. Mudanças no HTML podem exigir ajustes.

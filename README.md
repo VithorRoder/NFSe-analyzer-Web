@@ -14,10 +14,16 @@ Instale o [complemento Chrome](extension/README.md). Depois faça login no porta
 
 Nenhuma senha é solicitada pelo site ou pelo complemento. As notas não são enviadas ao servidor deste projeto; a análise fica na memória da aba.
 
+## Baixar XMLs do ADN
+
+Com o certificado digital selecionado no Chrome e o complemento atualizado, clique em **Baixar XMLs em ZIP** no site. A extensão consulta a API oficial do ADN em lotes por NSU; o site descompacta os XMLs e prepara o ZIP localmente. São até 5.000 documentos por ZIP. Se houver mais, use **Continuar do NSU** na mesma aba para obter a parte seguinte. **Parar e salvar parcial** encerra após o lote atual. O progresso e o último NSU aparecem na página.
+
+Essa consulta abrange os documentos autorizados ao certificado, inclusive tipos além da NFS-e quando retornados pelo ADN. Ela não usa os filtros de data ou situação da listagem do portal. O XML e a senha do certificado não são enviados ao servidor deste projeto.
+
 ## XMLs já baixados
 
 Na seção **Também tenho arquivos XML**, selecione até 1.000 XMLs de NFS-e (até 5 MB por arquivo). O site lê os campos disponíveis localmente, mostra uma prévia e gera um ZIP com os XMLs originais organizados por prestador e competência e uma planilha de detalhes (serviço, ISSQN, PIS e Cofins quando informados). Arquivos repetidos pela chave da NFS-e são ignorados. A presença da assinatura é conferida, mas sua validade criptográfica não é verificada. Situação e eventos não são inferidos apenas do XML; confira-os no portal.
 
 ## Limites
 
-O portal pode mudar a estrutura da tabela ou da paginação. Situações ambíguas são marcadas como **Não identificada** e não são somadas como válidas. Esta versão cobre a listagem de notas emitidas, não a API oficial nem o histórico completo de eventos.
+O portal pode mudar a estrutura da tabela ou da paginação. Situações ambíguas são marcadas como **Não identificada** e não são somadas como válidas. A consulta ADN salva os XMLs, mas não gera DANFSe nem valida assinaturas digitais. A listagem do portal continua limitada às notas emitidas.
