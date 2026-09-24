@@ -1459,6 +1459,50 @@ td:nth-child(4) {
     opacity: .55
 }
 
+.xml-import-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 15px 0
+}
+
+.xml-import-actions input {
+    max-width: 100%;
+    font-size: 12px
+}
+
+.xml-import-actions .button {
+    background: #edf1ff;
+    color: #4568e7
+}
+
+.xml-import-actions .button:disabled {
+    opacity: .55;
+    cursor: not-allowed
+}
+
+#xml-feedback {
+    margin: 8px 0 14px
+}
+
+#xml-preview {
+    margin-top: 12px;
+    background: #fff;
+    border: 1px solid #e6ebf3;
+    border-radius: 10px
+}
+
+.xml-download-link {
+    color: #4568e7;
+    font-weight: 700;
+    white-space: nowrap
+}
+
+.xml-download-link:hover {
+    text-decoration: underline
+}
+
 @media(max-width:600px) {
     .export-actions {
         justify-content: flex-start

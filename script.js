@@ -38,7 +38,7 @@ function renderTable(rows) {
   if (!rows.length) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
-    td.colSpan = 5;
+    td.colSpan = 6;
     td.className = "empty-row";
     td.textContent = "Nenhuma nota encontrada para os filtros escolhidos.";
     tr.append(td);
@@ -58,6 +58,20 @@ function renderTable(rows) {
     if (note.rawStatus) badge.title = "Situação no portal: " + note.rawStatus;
     td.append(badge);
     tr.append(td);
+    const xmlCell = document.createElement("td");
+    if (note.xmlUrl) {
+      const link = document.createElement("a");
+      link.href = note.xmlUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.className = "xml-download-link";
+      link.textContent = "Baixar XML";
+      link.title = "Abre o download oficial no portal; você poderá precisar resolver o CAPTCHA.";
+      xmlCell.append(link);
+    } else {
+      xmlCell.textContent = "—";
+    }
+    tr.append(xmlCell);
     body.append(tr);
   });
   $("#result-count").textContent = rows.length + " de " + notes.length + " notas exibidas";
@@ -152,13 +166,22 @@ function receiveNotes(incoming) {
   notes = incoming.map(item => {
     if (!item || typeof item !== "object") return null;
     const value = Number(item.value);
+    let xmlUrl = "";
+    try {
+      const url = new URL(String(item.xmlUrl || ""));
+      if (url.protocol === "https:" && ["www.nfse.gov.br", "nfse.gov.br"].includes(url.hostname) &&
+        /^\/EmissorNacional\/Notas\/Download\/NFSe\/[A-Za-z0-9]+\/?$/i.test(url.pathname)) {
+        xmlUrl = url.href;
+      }
+    } catch { /* Sem link de XML disponível na linha. */ }
     return {
       number: String(item.number || "").slice(0, 80),
       client: String(item.client || "").slice(0, 250),
       date: String(item.date || "").slice(0, 30),
       value: Number.isFinite(value) ? value : 0,
       status: Object.hasOwn(labels, item.status) ? item.status : "unknown",
-      rawStatus: String(item.rawStatus || "").slice(0, 160)
+      rawStatus: String(item.rawStatus || "").slice(0, 160),
+      xmlUrl
     };
   }).filter(Boolean);
   demo = false;

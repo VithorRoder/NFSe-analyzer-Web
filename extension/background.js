@@ -128,9 +128,17 @@ function readPortalPage() {
     if (statusText.includes("substitu")) status = "substituted";
     else if (statusText.includes("cancel")) status = "cancelled";
     else if (/\b(emitida|valida|ativa|normal|regular)\b/.test(statusText)) status = "valid";
+    const xmlLink = [...row.querySelectorAll("a[href]")].find(link => {
+      try {
+        const url = new URL(link.href, location.href);
+        return url.origin === location.origin &&
+          (/download\s+xml/i.test(plain(link.textContent)) || /\/Notas\/Download\/NFSe\//i.test(url.pathname));
+      } catch { return false; }
+    });
     notes.push({
       number: cells[numberIndex] || "",
       client, date, value, status, rawStatus: rawStatus || iconStatus,
+      xmlUrl: xmlLink?.href || "",
       pageRow: rowIndex
     });
   });
