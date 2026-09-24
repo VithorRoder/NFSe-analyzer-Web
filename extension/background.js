@@ -2,17 +2,17 @@ const SITE_URL = "https://nfseanalyzer.vercel.app/";
 const PORTAL_ORIGIN = "https://www.nfse.gov.br";
 let collecting = false;
 
-chrome.runtime.onMessage.addListener((message,sender,sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type !== "NFSE_COLLECT") return;
   if (sender.id !== chrome.runtime.id) return;
   if (collecting) {
-    sendResponse({ok:false,error:"Já existe uma coleta em andamento."});
+    sendResponse({ ok: false, error: "Já existe uma coleta em andamento." });
     return;
   }
   collecting = true;
   collect(message.tabId)
-    .then(count => sendResponse({ok:true,count}))
-    .catch(error => sendResponse({ok:false,error:error.message || "Falha na coleta."}))
+    .then(count => sendResponse({ ok: true, count }))
+    .catch(error => sendResponse({ ok: false, error: error.message || "Falha na coleta." }))
     .finally(() => { collecting = false; });
   return true;
 });
@@ -30,8 +30,8 @@ async function collect(tabId) {
     if (visited.has(current.url)) break;
     visited.add(current.url);
     const [injection] = await chrome.scripting.executeScript({
-      target:{tabId},
-      func:readPortalPage
+      target: { tabId },
+      func: readPortalPage
     });
     const result = injection?.result;
     if (!result || !Array.isArray(result.notes)) throw new Error("Não foi possível ler a página.");
@@ -43,47 +43,47 @@ async function collect(tabId) {
     if (!result.nextUrl || visited.has(result.nextUrl)) break;
     const next = new URL(result.nextUrl);
     if (next.origin !== PORTAL_ORIGIN || next.pathname !== new URL(current.url).pathname) break;
-    await navigate(tabId,next.href);
+    await navigate(tabId, next.href);
   }
-  const sites = await chrome.tabs.query({url:SITE_URL + "*"});
+  const sites = await chrome.tabs.query({ url: SITE_URL + "*" });
   let site = sites.find(tab => tab.url?.startsWith(SITE_URL));
-  if (!site) site = await chrome.tabs.create({url:SITE_URL,active:false});
+  if (!site) site = await chrome.tabs.create({ url: SITE_URL, active: false });
   await waitForReady(site.id);
-  await sendNotes(site.id,notes);
-  await chrome.tabs.update(site.id,{active:true});
+  await sendNotes(site.id, notes);
+  await chrome.tabs.update(site.id, { active: true });
   return notes.length;
 }
 
-async function sendNotes(tabId,notes) {
+async function sendNotes(tabId, notes) {
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
-      await chrome.tabs.sendMessage(tabId,{type:"NFSE_NOTES",notes});
+      await chrome.tabs.sendMessage(tabId, { type: "NFSE_NOTES", notes });
       return;
     } catch {
-      await new Promise(resolve => setTimeout(resolve,350));
+      await new Promise(resolve => setTimeout(resolve, 350));
     }
   }
   throw new Error("Recarregue a aba do NFSe Analyzer depois de instalar o complemento e tente novamente.");
 }
 
-function navigate(tabId,url) {
-  return new Promise((resolve,reject) => {
-    const timeout = setTimeout(() => { cleanup(); reject(new Error("O portal demorou para abrir a próxima página.")); },20000);
-    const listener = (id,change) => {
-      if (id === tabId && change.status === "complete") { cleanup(); setTimeout(resolve,450); }
+function navigate(tabId, url) {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => { cleanup(); reject(new Error("O portal demorou para abrir a próxima página.")); }, 20000);
+    const listener = (id, change) => {
+      if (id === tabId && change.status === "complete") { cleanup(); setTimeout(resolve, 450); }
     };
     function cleanup() { clearTimeout(timeout); chrome.tabs.onUpdated.removeListener(listener); }
     chrome.tabs.onUpdated.addListener(listener);
-    chrome.tabs.update(tabId,{url}).catch(error => { cleanup(); reject(error); });
+    chrome.tabs.update(tabId, { url }).catch(error => { cleanup(); reject(error); });
   });
 }
 
 async function waitForReady(tabId) {
   const tab = await chrome.tabs.get(tabId);
   if (tab.status === "complete") return;
-  await new Promise((resolve,reject) => {
-    const timeout = setTimeout(() => { cleanup(); reject(new Error("O site demorou para abrir.")); },20000);
-    const listener = (id,change) => {
+  await new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => { cleanup(); reject(new Error("O site demorou para abrir.")); }, 20000);
+    const listener = (id, change) => {
       if (id === tabId && change.status === "complete") { cleanup(); resolve(); }
     };
     function cleanup() { clearTimeout(timeout); chrome.tabs.onUpdated.removeListener(listener); }
@@ -93,23 +93,23 @@ async function waitForReady(tabId) {
 
 // Esta função roda na aba do portal. Ela lê somente o DOM visível, sem cookies ou credenciais.
 function readPortalPage() {
-  const plain = value => String(value || "").replace(/\s+/g," ").trim();
-  const normalize = value => plain(value).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+  const plain = value => String(value || "").replace(/\s+/g, " ").trim();
+  const normalize = value => plain(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const tables = [...document.querySelectorAll("table")];
   const table = tables.find(item => {
     const text = normalize(item.querySelector("thead")?.textContent || "");
     return item.querySelector("tbody tr td") && (text.includes("emissao") || text.includes("situacao") || text.includes("emitida para"));
   }) || tables.find(item => item.querySelector("tbody tr td"));
-  if (!table) return {notes:[],nextUrl:null};
+  if (!table) return { notes: [], nextUrl: null };
   const headers = [...table.querySelectorAll("thead th")].map(th => normalize(th.textContent));
   const index = terms => headers.findIndex(header => terms.some(term => header.includes(term)));
-  const dateIndex = index(["emissao","data"]);
-  const clientIndex = index(["emitida para","tomador","cliente"]);
-  const valueIndex = index(["preco servico","valor","total"]);
-  const statusIndex = index(["situacao","status"]);
-  const numberIndex = index(["numero","nfs-e","nfse"]);
+  const dateIndex = index(["emissao", "data"]);
+  const clientIndex = index(["emitida para", "tomador", "cliente"]);
+  const valueIndex = index(["preco servico", "valor", "total"]);
+  const statusIndex = index(["situacao", "status"]);
+  const numberIndex = index(["numero", "nfs-e", "nfse"]);
   const notes = [];
-  [...table.querySelectorAll("tbody tr")].forEach((row,rowIndex) => {
+  [...table.querySelectorAll("tbody tr")].forEach((row, rowIndex) => {
     const cells = [...row.querySelectorAll("td")].map(td => plain(td.textContent));
     const all = cells.join(" ");
     const date = (cells[dateIndex >= 0 ? dateIndex : 0] || all).match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "";
@@ -117,11 +117,11 @@ function readPortalPage() {
     const client = cells[clientIndex >= 0 ? clientIndex : 1] || "";
     const valueText = valueIndex >= 0 ? cells[valueIndex] : [...cells].reverse().find(cell => /(?:R\$\s*)?\d[\d.]*,\d{2}/.test(cell));
     const amount = valueText?.match(/(?:R\$\s*)?(\d[\d.]*,\d{2})/);
-    const value = amount ? Number(amount[1].replace(/\./g,"").replace(",",".")) : 0;
+    const value = amount ? Number(amount[1].replace(/\./g, "").replace(",", ".")) : 0;
     const statusCell = row.querySelectorAll("td")[statusIndex >= 0 ? statusIndex : 3];
     const rawStatus = plain(statusCell?.textContent);
     const iconStatus = [...(statusCell?.querySelectorAll("[title],[aria-label],[data-bs-original-title],[data-original-title]") || [])]
-      .map(element => [element.title,element.getAttribute("aria-label"),element.getAttribute("data-bs-original-title"),element.getAttribute("data-original-title")].filter(Boolean).join(" "))
+      .map(element => [element.title, element.getAttribute("aria-label"), element.getAttribute("data-bs-original-title"), element.getAttribute("data-original-title")].filter(Boolean).join(" "))
       .join(" ");
     const statusText = normalize(rawStatus + " " + iconStatus);
     let status = "unknown";
@@ -129,17 +129,17 @@ function readPortalPage() {
     else if (statusText.includes("cancel")) status = "cancelled";
     else if (/\b(emitida|valida|ativa|normal|regular)\b/.test(statusText)) status = "valid";
     notes.push({
-      number:cells[numberIndex] || "",
-      client,date,value,status,rawStatus:rawStatus || iconStatus,
-      pageRow:rowIndex
+      number: cells[numberIndex] || "",
+      client, date, value, status, rawStatus: rawStatus || iconStatus,
+      pageRow: rowIndex
     });
   });
   const page = Number(new URL(location.href).searchParams.get("pg") || 1);
   const next = [...document.querySelectorAll("a[href]")].find(link => {
     try {
       const url = new URL(link.href);
-      return url.origin === location.origin && Number(url.searchParams.get("pg")) === page+1;
+      return url.origin === location.origin && Number(url.searchParams.get("pg")) === page + 1;
     } catch { return false; }
   });
-  return {notes,nextUrl:next?.href || null};
+  return { notes, nextUrl: next?.href || null };
 }

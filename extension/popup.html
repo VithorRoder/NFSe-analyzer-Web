@@ -1,22 +1,60 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NFSe Analyzer</title>
   <style>
-    body{font:13px system-ui,sans-serif;width:290px;margin:0;padding:18px;color:#1b2741}
-    h1{font-size:17px;margin:0 0 8px}p{line-height:1.5;color:#66728a;margin:0 0 14px}
-    button{width:100%;border:0;border-radius:9px;background:#5274f4;color:#fff;padding:12px;font-weight:700;cursor:pointer}
-    button:disabled{background:#b3bed9;cursor:not-allowed}
-    #status{margin-top:12px;min-height:20px;color:#53617b}
+    body {
+      font: 13px system-ui, sans-serif;
+      width: 290px;
+      margin: 0;
+      padding: 18px;
+      color: #1b2741
+    }
+
+    h1 {
+      font-size: 17px;
+      margin: 0 0 8px
+    }
+
+    p {
+      line-height: 1.5;
+      color: #66728a;
+      margin: 0 0 14px
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 9px;
+      background: #5274f4;
+      color: #fff;
+      padding: 12px;
+      font-weight: 700;
+      cursor: pointer
+    }
+
+    button:disabled {
+      background: #b3bed9;
+      cursor: not-allowed
+    }
+
+    #status {
+      margin-top: 12px;
+      min-height: 20px;
+      color: #53617b
+    }
   </style>
   <script src="popup.js" defer></script>
 </head>
+
 <body>
   <h1>NFSe Analyzer</h1>
   <p>Entre no portal, abra <strong>NFS-e emitidas</strong> e aplique os filtros desejados antes de coletar.</p>
   <button id="collect" type="button">Coletar notas desta listagem</button>
   <div id="status" role="status" aria-live="polite"></div>
 </body>
+
 </html>
