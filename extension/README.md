@@ -33,10 +33,12 @@ Se aparecer **Failed to fetch**, use **Abrir ADN e selecionar certificado**. O C
 
 Após o teste retornar HTTP 200, abra o site atualizado e use **Baixar XMLs em ZIP**. A extensão consulta a API do ADN em lotes por NSU, e o site monta o ZIP localmente. O botão de parar salva o lote parcial; o limite é de 5.000 documentos por arquivo, com continuação pelo último NSU na mesma aba. O conjunto retornado pelo certificado não segue os filtros da tabela de notas emitidas.
 
+Para filtrar e organizar o material baixado, use **Organizar um ZIP baixado do ADN** no site. Essa etapa separa emitidas e recebidas para a empresa selecionada, associa eventos a NFS-e pela chave e gera um novo ZIP com pastas por empresa, direção, competência e situação, além de uma planilha de conferência.
+
 ## Limites desta versão
 
 - A leitura depende da estrutura atual da tabela do portal. Mudanças no HTML podem exigir ajustes.
 - A paginação automática usa links com parâmetro pg=N, como no aplicativo Python original. Se o portal usar outro tipo de paginação, somente a página atual será coletada.
 - Quando a situação não aparece claramente na coluna correspondente, a nota fica como **Não identificada** e é excluída do total válido.
-- Esta versão lê a listagem de **notas emitidas**. Não consulta eventos históricos pela API oficial e não valida assinaturas XML.
+- A coleta da tabela do portal lê apenas **notas emitidas**. A consulta ao ADN também baixa os eventos que ele distribuir ao certificado. A assinatura digital dos XMLs não é validada criptograficamente.
 - Os dados ficam na memória da aba do site. Fechar ou atualizar a aba limpa a análise.

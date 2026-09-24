@@ -20,6 +20,10 @@ Com o certificado digital selecionado no Chrome e o complemento atualizado, cliq
 
 Essa consulta abrange os documentos autorizados ao certificado, inclusive tipos além da NFS-e quando retornados pelo ADN. Ela não usa os filtros de data ou situação da listagem do portal. O XML e a senha do certificado não são enviados ao servidor deste projeto.
 
+## Organizar um ZIP do ADN
+
+Na seção **Organizar um ZIP baixado do ADN**, selecione o ZIP gerado pelo site. A página relaciona os eventos às notas pela chave de acesso: `e101101` marca cancelamento e `e105102` marca cancelamento por substituição. Quando um mesmo CNPJ/CPF aparece como prestador ou tomador de todas as notas, ele é selecionado automaticamente e o filtro começa em **Emitidas**. A tela mostra separadamente a quantidade de emitidas e recebidas; também permite filtrar por mês de emissão ou competência e situação. O novo ZIP contém os XMLs originais em pastas por empresa, direção, competência e situação, os eventos correspondentes e uma planilha Excel com resumo e detalhes financeiros. Todo o processamento acontece no navegador; a assinatura digital não é validada criptograficamente.
+
 ## XMLs já baixados
 
 Na seção **Também tenho arquivos XML**, selecione até 1.000 XMLs de NFS-e (até 5 MB por arquivo). O site lê os campos disponíveis localmente, mostra uma prévia e gera um ZIP com os XMLs originais organizados por prestador e competência e uma planilha de detalhes (serviço, ISSQN, PIS e Cofins quando informados). Arquivos repetidos pela chave da NFS-e são ignorados. A presença da assinatura é conferida, mas sua validade criptográfica não é verificada. Situação e eventos não são inferidos apenas do XML; confira-os no portal.
