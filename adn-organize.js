@@ -330,6 +330,7 @@ function adnBuildReport(notes, companyId) {
     const row = details.addRow({ ...note, issue: adnReportDate(note.issue), direction, status: { valid: "Válida", cancelled: "Cancelada", substituted: "Substituída" }[note.status], eventCount: note.events.length });
     if (note.status !== "valid") row.fill = { type: "pattern", pattern: "solid", fgColor: { argb: note.status === "cancelled" ? "FFFDEEEE" : "FFF3EEFC" } };
     row.getCell(3).numFmt = "dd/mm/yyyy";
+    row.getCell(3).alignment = { horizontal: "left" };
     for (const column of [13, 14, 15, 16, 17, 19, 21, 22, 23, 24, 29, 30, 31]) row.getCell(column).numFmt = '"R$" #,##0.00';
     for (const column of [20, 25, 26]) row.getCell(column).numFmt = '0.00"%"';
   }
