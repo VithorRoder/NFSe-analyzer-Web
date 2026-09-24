@@ -10,7 +10,7 @@ O endereço público configurado para o complemento é https://nfseanalyzer.verc
 
 ## Coletar notas
 
-Instale o [complemento Chrome](extension/README.md). Depois faça login no portal, abra **NFS-e emitidas**, aplique os filtros desejados e clique no botão de coleta do complemento. Ele lê as páginas da listagem e transfere os registros diretamente para a aba do site. O site oferece busca, filtros por situação e período, resumo e exportação CSV.
+Instale o [complemento Chrome](extension/README.md). Depois faça login no portal, abra **NFS-e emitidas**, aplique os filtros desejados e clique no botão de coleta do complemento. Ele lê as páginas da listagem e transfere os registros diretamente para a aba do site. O site oferece busca, filtros por situação e período, resumo e exportação Excel ou CSV. A planilha Excel inclui abas Resumo e Notas, colunas dimensionadas, valores monetários formatados e destaque para notas canceladas e substituídas. As exportações respeitam os filtros ativos.
 
 Nenhuma senha é solicitada pelo site ou pelo complemento. As notas não são enviadas ao servidor deste projeto; a análise fica na memória da aba.
 

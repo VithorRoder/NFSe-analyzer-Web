@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
+    <script src="./vendor/exceljs.min.js" defer></script>
     <script src="./script.js" defer></script>
   </head>
   <body>
@@ -48,7 +49,7 @@
               <div class="preview-chart" aria-hidden="true"><span style="--h:42%"></span><span style="--h:62%"></span><span style="--h:49%"></span><span style="--h:78%"></span><span style="--h:67%"></span><span style="--h:100%"></span></div>
               <div class="preview-months"><span>ABR</span><span>MAI</span><span>JUN</span><span>JUL</span><span>AGO</span><span>SET</span></div>
             </div>
-            <div class="floating-tag tag-bottom"><span class="file-glyph">▤</span><span><strong>Exportação CSV</strong><small>Informações em ordem</small></span></div>
+            <div class="floating-tag tag-bottom"><span class="file-glyph">▤</span><span><strong>Planilha Excel</strong><small>Resumo e notas organizadas</small></span></div>
           </div>
         </section>
 
@@ -57,7 +58,7 @@
           <div class="steps-grid">
             <article class="step-card"><span class="step-number">01</span><span class="step-icon" aria-hidden="true">↗</span><h3>Abra o portal</h3><p>Entre na sua conta da NFS-e no Chrome e abra a lista de notas emitidas.</p></article>
             <article class="step-card"><span class="step-number">02</span><span class="step-icon" aria-hidden="true">▥</span><h3>Colete e filtre</h3><p>Use o complemento para trazer as notas e veja válidas, canceladas e substituídas.</p></article>
-            <article class="step-card"><span class="step-number">03</span><span class="step-icon" aria-hidden="true">↧</span><h3>Leve com você</h3><p>Exporte um CSV para continuar a análise ou compartilhar com seu contador.</p></article>
+            <article class="step-card"><span class="step-number">03</span><span class="step-icon" aria-hidden="true">↧</span><h3>Leve com você</h3><p>Exporte uma planilha Excel com resumo e notas para continuar a análise ou compartilhar com seu contador.</p></article>
           </div>
         </section>
 
@@ -83,7 +84,7 @@
             <article class="data-card chart-card"><div class="card-heading"><div><h3>Evolução mensal</h3><p>Valor das notas válidas</p></div></div><div class="chart-area" id="chart-area" aria-label="Valor mensal das notas válidas"></div></article>
             <article class="data-card distribution-card"><div class="card-heading"><div><h3>Situação das notas</h3><p>Distribuição no período</p></div></div><div class="donut-wrap"><div class="donut" id="status-donut"><div><strong id="donut-total">0</strong><span>notas</span></div></div></div><div class="legend" id="status-legend"></div></article>
           </div>
-          <article class="data-card table-card"><div class="card-heading table-heading"><div><h3>Notas fiscais</h3><p>Encontre rapidamente o que precisa.</p></div><button class="button button-disabled" type="button" id="export-button" disabled>↧ Exportar CSV</button></div><div class="table-tools"><label class="search-box"><span aria-hidden="true">⌕</span><span class="sr-only">Buscar nota, cliente ou número</span><input id="search-input" type="search" placeholder="Buscar por cliente ou número" /></label><label class="filter-box"><span class="sr-only">Filtrar situação</span><select id="status-filter"><option value="all">Todas as situações</option><option value="valid">Válidas</option><option value="cancelled">Canceladas</option><option value="substituted">Substituídas</option><option value="unknown">Não identificadas</option></select></label><label class="date-box">De <input id="date-from" type="date" aria-label="Data inicial" /></label><label class="date-box">Até <input id="date-to" type="date" aria-label="Data final" /></label></div><div class="table-scroll"><table><thead><tr><th>Número</th><th>Cliente</th><th>Emissão</th><th>Valor</th><th>Situação</th></tr></thead><tbody id="notes-body"></tbody></table></div><div class="table-footer"><span id="result-count"></span><span id="source-label">Dados de exemplo</span></div></article>
+          <article class="data-card table-card"><div class="card-heading table-heading"><div><h3>Notas fiscais</h3><p>Encontre rapidamente o que precisa.</p></div><div class="export-actions"><button class="button button-disabled" type="button" id="export-csv-button" disabled>↧ Exportar CSV</button><button class="button button-disabled" type="button" id="export-button" disabled>↧ Exportar XLSX</button></div></div><div class="table-tools"><label class="search-box"><span aria-hidden="true">⌕</span><span class="sr-only">Buscar nota, cliente ou número</span><input id="search-input" type="search" placeholder="Buscar por cliente ou número" /></label><label class="filter-box"><span class="sr-only">Filtrar situação</span><select id="status-filter"><option value="all">Todas as situações</option><option value="valid">Válidas</option><option value="cancelled">Canceladas</option><option value="substituted">Substituídas</option><option value="unknown">Não identificadas</option></select></label><label class="date-box">De <input id="date-from" type="date" aria-label="Data inicial" /></label><label class="date-box">Até <input id="date-to" type="date" aria-label="Data final" /></label></div><div class="table-scroll"><table><thead><tr><th>Número</th><th>Cliente</th><th>Emissão</th><th>Valor</th><th>Situação</th></tr></thead><tbody id="notes-body"></tbody></table></div><div class="table-footer"><span id="result-count"></span><span id="source-label">Dados de exemplo</span></div></article>
         </section>
 
         <section id="privacidade" class="privacy-section section-wrap"><div class="privacy-icon" aria-hidden="true">♢</div><div><span class="section-kicker">PRIVACIDADE EM PRIMEIRO LUGAR</span><h2>Seus dados pertencem a você.</h2><p>O complemento lê apenas a listagem de notas aberta no portal. As informações são entregues diretamente a esta aba para análise local; o site não solicita sua senha nem envia suas notas ao nosso servidor.</p></div><a href="#importar" class="privacy-link">Voltar ao início <span aria-hidden="true">↗</span></a></section>

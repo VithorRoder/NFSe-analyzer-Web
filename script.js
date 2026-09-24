@@ -141,8 +141,10 @@ function render() {
   renderTable(rows);
   renderSummary(rows);
   renderChart(rows);
-  $("#export-button").disabled = demo || !rows.length;
-  $("#export-button").classList.toggle("button-disabled",demo || !rows.length);
+  ["#export-button","#export-csv-button"].forEach(selector => {
+    $(selector).disabled = demo || !rows.length;
+    $(selector).classList.toggle("button-disabled",demo || !rows.length);
+  });
 }
 
 function receiveNotes(incoming) {
@@ -188,7 +190,7 @@ function csvCell(value) {
   if (/^\s*[=+\-@]/.test(text)) text = "'" + text;
   return '"' + text.replaceAll('"','""') + '"';
 }
-$("#export-button").addEventListener("click",() => {
+$("#export-csv-button").addEventListener("click",() => {
   if (demo) return;
   const rows = [["Número","Cliente","Emissão","Valor (R$)","Situação","Situação original"]];
   filteredNotes().forEach(note => rows.push([note.number,note.client,note.date,note.value.toFixed(2).replace(".",","),labels[note.status],note.rawStatus]));
@@ -199,6 +201,90 @@ $("#export-button").addEventListener("click",() => {
   link.download = "nfse-analyzer-notas.csv";
   link.click();
   setTimeout(() => URL.revokeObjectURL(url),1000);
+});
+
+function downloadBlob(blob,filename) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url),1000);
+}
+
+function styleHeader(sheet) {
+  sheet.getRow(1).height = 27;
+  sheet.getRow(1).eachCell(cell => {
+    cell.fill = {type:"pattern",pattern:"solid",fgColor:{argb:"FF1F4E78"}};
+    cell.font = {bold:true,color:{argb:"FFFFFFFF"}};
+    cell.alignment = {vertical:"middle",horizontal:"center"};
+  });
+}
+
+$("#export-button").addEventListener("click",async () => {
+  if (demo || typeof ExcelJS === "undefined") return;
+  const button = $("#export-button");
+  const rows = filteredNotes();
+  if (!rows.length) return;
+  button.disabled = true;
+  button.textContent = "Preparando Excel…";
+  try {
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = "NFSe Analyzer";
+    const summary = workbook.addWorksheet("Resumo");
+    summary.columns = [{width:31},{width:21}];
+    summary.addRow(["Indicador","Valor"]);
+    const count = {valid:0,cancelled:0,substituted:0,unknown:0};
+    const totals = {valid:0,cancelled:0};
+    rows.forEach(note => {
+      count[note.status]++;
+      if (note.status === "valid" || note.status === "cancelled") totals[note.status] += note.value;
+    });
+    [
+      ["Quantidade total lida",rows.length],
+      ["Notas válidas",count.valid],
+      ["Notas canceladas",count.cancelled],
+      ["Notas substituídas",count.substituted],
+      ["Notas não identificadas",count.unknown],
+      ["Total notas válidas",totals.valid],
+      ["Total notas canceladas",totals.cancelled]
+    ].forEach(item => summary.addRow(item));
+    styleHeader(summary);
+    [7,8].forEach(row => { summary.getCell(`B${row}`).numFmt = '"R$" #,##0.00'; });
+    summary.views = [{state:"frozen",ySplit:1}];
+
+    const sheet = workbook.addWorksheet("Notas");
+    sheet.columns = [
+      {header:"Número",width:18},
+      {header:"Cliente",width:90},
+      {header:"Emissão",width:16},
+      {header:"Valor",width:19},
+      {header:"Situação",width:22},
+      {header:"Situação original",width:35}
+    ];
+    styleHeader(sheet);
+    rows.forEach(note => {
+      const row = sheet.addRow([note.number,note.client,note.date,note.value,labels[note.status],note.rawStatus]);
+      row.getCell(4).numFmt = '"R$" #,##0.00';
+      row.alignment = {vertical:"middle"};
+      row.height = 21;
+      if (note.status === "cancelled") {
+        row.eachCell(cell => { cell.fill = {type:"pattern",pattern:"solid",fgColor:{argb:"FFFCE4D6"}}; });
+      } else if (note.status === "substituted") {
+        row.eachCell(cell => { cell.fill = {type:"pattern",pattern:"solid",fgColor:{argb:"FFF0EAFF"}}; });
+      }
+    });
+    sheet.autoFilter = {from:"A1",to:`F${rows.length + 1}`};
+    sheet.views = [{state:"frozen",ySplit:1}];
+    const buffer = await workbook.xlsx.writeBuffer();
+    downloadBlob(new Blob([buffer],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),"nfse-analyzer-notas.xlsx");
+  } catch (error) {
+    console.error("Falha ao exportar Excel",error);
+    window.alert("Não foi possível gerar a planilha Excel. Tente novamente.");
+  } finally {
+    button.textContent = "↧ Exportar XLSX";
+    button.disabled = false;
+  }
 });
 
 $("#year").textContent = new Date().getFullYear();
