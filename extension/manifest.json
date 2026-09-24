@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NFSe Analyzer — Portal",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Lê as notas da aba autenticada do portal NFS-e e entrega ao NFSe Analyzer.",
   "minimum_chrome_version": "102",
   "icons": {
@@ -16,6 +16,7 @@
   ],
   "host_permissions": [
     "https://www.nfse.gov.br/*",
+    "https://adn.nfse.gov.br/*",
     "https://nfseanalyzer.vercel.app/*"
   ],
   "background": {

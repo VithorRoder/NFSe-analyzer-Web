@@ -46,6 +46,18 @@
       min-height: 20px;
       color: #53617b
     }
+
+    #test-adn {
+      margin-top: 12px;
+      background: #edf1ff;
+      color: #4056a8
+    }
+
+    #adn-status {
+      margin-top: 8px;
+      color: #53617b;
+      line-height: 1.4
+    }
   </style>
   <script src="popup.js" defer></script>
 </head>
@@ -55,6 +67,8 @@
   <p>Entre no portal, abra <strong>NFS-e emitidas</strong> e aplique os filtros desejados antes de coletar.</p>
   <button id="collect" type="button">Coletar notas desta listagem</button>
   <div id="status" role="status" aria-live="polite"></div>
+  <button id="test-adn" type="button">Testar acesso ao ADN</button>
+  <div id="adn-status" role="status" aria-live="polite"></div>
 </body>
 
 </html>

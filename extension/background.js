@@ -1,9 +1,17 @@
 const SITE_URL = "https://nfseanalyzer.vercel.app/";
 const PORTAL_ORIGIN = "https://www.nfse.gov.br";
+const ADN_TEST_URL = "https://adn.nfse.gov.br/contribuintes/DFe/0";
 let collecting = false;
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (sender.id !== chrome.runtime.id) return;
+  if (message?.type === "NFSE_TEST_ADN") {
+    if (sender.url !== chrome.runtime.getURL("popup.html")) return;
+    testAdnConnection()
+      .then(result => sendResponse({ ok: true, ...result }))
+      .catch(error => sendResponse({ ok: false, error: error.message || "Falha na conexão com o ADN." }));
+    return true;
+  }
   if (message?.type === "NFSE_OPEN_XML") {
     if (!sender.tab?.url?.startsWith(SITE_URL)) {
       sendResponse({ ok: false, error: "Solicitação fora do NFSe Analyzer." });
@@ -26,6 +34,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     .finally(() => { collecting = false; });
   return true;
 });
+
+async function testAdnConnection() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20000);
+  try {
+    const response = await fetch(ADN_TEST_URL, {
+      method: "GET",
+      cache: "no-store",
+      redirect: "error",
+      signal: controller.signal
+    });
+    return { status: response.status };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 async function openPortalXml(pageUrlText, xmlUrlText) {
   const pageUrl = new URL(pageUrlText);

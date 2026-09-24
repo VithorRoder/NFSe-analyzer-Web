@@ -25,6 +25,10 @@ No repositório, execute `python scripts/package_extension.py`. O arquivo gerado
 4. Com a aba do portal ativa, clique no ícone do complemento e em **Coletar notas desta listagem**.
 5. O complemento percorre os links de paginação pg=N, abre o site e entrega as notas. No site, você pode buscar, filtrar por situação e data, e exportar o resultado em CSV ou XLSX. Quando o portal expõe o comando de XML na linha, a tabela mostra **Baixar XML**. Esse botão volta à página da nota no portal e aciona o comando original. Resolva o CAPTCHA manualmente quando solicitado. Depois de atualizar o complemento, recarregue o site e faça uma nova coleta para receber os vínculos das páginas.
 
+## Testar acesso à API com certificado
+
+Depois de instalar o certificado A1 no armazenamento de certificados usado pelo Chrome, recarregue o complemento em `chrome://extensions` e clique em **Testar acesso ao ADN** no popup. O teste faz uma única consulta com NSU 0 à API de produção e mostra o código HTTP, sem ler ou enviar o arquivo `.pfx` ou sua senha ao site. O Chrome pode pedir que você selecione o certificado. Um código HTTP indica que a conexão chegou ao servidor, mas não comprova autorização para consultar as notas do CNPJ. HTTP 401/403 indica que a consulta não foi autorizada. Falhas de rede ou certificado também podem aparecer como erro genérico; o teste não baixa XMLs.
+
 ## Limites desta versão
 
 - A leitura depende da estrutura atual da tabela do portal. Mudanças no HTML podem exigir ajustes.
