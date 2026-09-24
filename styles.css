@@ -1409,6 +1409,60 @@ td:nth-child(4) {
     margin: 0
 }
 
+.adn-batch-preview {
+    margin-top: 20px;
+    padding: 18px;
+    border: 1px solid #dce5ff;
+    border-radius: 14px;
+    background: #f9faff
+}
+
+.adn-preview-top,
+.adn-detail-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px
+}
+
+.adn-preview-top input {
+    width: min(100%, 370px);
+    padding: 10px;
+    border: 1px solid #dbe2f0;
+    border-radius: 9px
+}
+
+.adn-preview-pages { display: flex; align-items: center; gap: 9px; flex-wrap: wrap }
+.adn-preview-pages p { margin-right: auto }
+
+#adn-preview-body tr { cursor: pointer }
+#adn-preview-body tr:hover,
+#adn-preview-body tr:focus { background: #eef2ff; outline: 2px solid #9aabf2 }
+#adn-preview-body .adn-row-cancelled { background: #fff6f6 }
+#adn-preview-body .adn-row-substituted { background: #f8f4ff }
+
+.adn-note-detail {
+    width: min(760px, 92vw);
+    max-height: 85vh;
+    padding: 24px;
+    border: 0;
+    border-radius: 16px;
+    color: #1b2741
+}
+
+.adn-note-detail::backdrop { background: #17244399 }
+.adn-note-detail dl { display: grid; grid-template-columns: minmax(145px, 1fr) 2fr; gap: 9px; overflow-wrap: anywhere }
+.adn-note-detail dt { font-weight: 700 }
+.adn-note-detail dd { margin: 0 }
+
+.adn-direct-options { margin-top: 15px }
+.adn-direct-options > label { display: flex; align-items: center; gap: 8px }
+#adn-direct-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px }
+#adn-direct-filters[hidden] { display: none }
+#adn-direct-filters label { display: grid; gap: 4px; font-weight: 700 }
+#adn-direct-filters input,
+#adn-direct-filters select { min-height: 42px; padding: 8px; border: 1px solid #dbe2f0; border-radius: 9px }
+
 .alternative-import summary {
     cursor: pointer;
     font-weight: 700

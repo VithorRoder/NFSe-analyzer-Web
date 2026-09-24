@@ -21,6 +21,7 @@
     <script src="./adn-export.js" defer></script>
     <script src="./danfse.js" defer></script>
     <script src="./adn-organize.js" defer></script>
+    <script src="./pdf-convert.js" defer></script>
 </head>
 
 <body>
@@ -135,6 +136,16 @@
                 <button id="adn-export-button" class="button button-primary" type="button">Baixar XMLs em ZIP</button>
                 <button id="adn-stop-button" class="button" type="button" hidden>Parar e salvar parcial</button>
               </div>
+              <div class="adn-direct-options">
+                <label><input id="adn-full-package" type="checkbox" /> Gerar pacote completo em uma operação</label>
+                <div id="adn-direct-filters" hidden>
+                  <label>CNPJ/CPF <input id="adn-direct-company" inputmode="numeric" placeholder="Opcional" /></label>
+                  <label>Direção <select id="adn-direct-direction"><option value="">Emitidas e recebidas</option><option value="issued">Emitidas</option><option value="received">Recebidas</option></select></label>
+                  <label>De <input id="adn-direct-from" type="month" /></label>
+                  <label>Até <input id="adn-direct-to" type="month" /></label>
+                  <label>Formato <select id="adn-direct-format"><option value="all">XML + PDF + XLSX + visualizador</option><option value="xml-xlsx">XML + XLSX + visualizador</option><option value="xml-only">Somente XML + visualizador</option></select></label>
+                </div>
+              </div>
               <p id="adn-feedback" role="status" aria-live="polite">Até 5.000 documentos por ZIP. Se houver mais, continue a partir do NSU indicado.</p>
             </div>
           </div>
@@ -153,6 +164,19 @@
               <button id="adn-organize-button" class="button button-primary" type="button" disabled>Gerar ZIP organizado</button>
             </div>
             <p id="adn-organize-feedback" role="status" aria-live="polite">Selecione um ZIP do ADN para começar.</p>
+            <div id="adn-batch-preview" class="adn-batch-preview" hidden>
+              <div class="adn-preview-top"><strong>Visualizador do lote</strong><input id="adn-preview-search" type="search" placeholder="Buscar número, cliente, prestador ou chave" aria-label="Buscar notas no lote" /></div>
+              <p id="adn-preview-summary"></p>
+              <div class="table-scroll"><table><thead><tr><th>Número</th><th>Emissão</th><th>Prestador</th><th>Tomador</th><th>Valor</th><th>Situação</th></tr></thead><tbody id="adn-preview-body"></tbody></table></div>
+              <div class="adn-preview-pages"><p id="adn-preview-count"></p><button id="adn-preview-prev" class="button" type="button">Anterior</button><button id="adn-preview-next" class="button" type="button">Próxima</button></div>
+            </div>
+            <dialog id="adn-note-detail" class="adn-note-detail"><div class="adn-detail-heading"><h3>Detalhes da NFS-e</h3><button type="button" id="adn-detail-close" class="button">Fechar</button></div><div id="adn-note-detail-content"></div></dialog>
+          </details>
+          <details class="alternative-import" id="pdf-convert">
+            <summary>Converter XMLs ou ZIP em PDFs</summary>
+            <p>Use arquivos XML ou um ZIP já baixado. A conversão é local e não consulta o ADN. Eventos no ZIP identificam notas canceladas e substituídas.</p>
+            <div class="xml-import-actions"><input id="pdf-convert-input" type="file" accept=".xml,.zip,text/xml,application/xml,application/zip" multiple aria-label="Selecionar XMLs ou ZIP para converter" /><button id="pdf-convert-button" class="button" type="button" disabled>Baixar PDFs em ZIP</button></div>
+            <p id="pdf-convert-feedback" role="status" aria-live="polite">Selecione arquivos para começar.</p>
           </details>
           <details class="alternative-import">
             <summary>Também tenho arquivos XML</summary>

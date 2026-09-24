@@ -2,11 +2,23 @@
 const adnExportButton = document.querySelector("#adn-export-button");
 const adnStopButton = document.querySelector("#adn-stop-button");
 const adnFeedback = document.querySelector("#adn-feedback");
+const adnFullPackage = document.querySelector("#adn-full-package");
+const adnDirectFilters = document.querySelector("#adn-direct-filters");
+const adnDirectCompany = document.querySelector("#adn-direct-company");
+const adnDirectDirection = document.querySelector("#adn-direct-direction");
+const adnDirectFrom = document.querySelector("#adn-direct-from");
+const adnDirectTo = document.querySelector("#adn-direct-to");
+const adnDirectFormat = document.querySelector("#adn-direct-format");
 const ADN_ZIP_LIMIT = 5000;
 const adnPending = new Map();
 let adnRunning = false;
 let adnStopRequested = false;
 let adnNextNsu = 0;
+
+adnFullPackage.addEventListener("change", () => {
+  adnDirectFilters.hidden = !adnFullPackage.checked;
+  adnExportButton.textContent = adnFullPackage.checked ? "Baixar pacote completo" : "Baixar XMLs em ZIP";
+});
 
 window.addEventListener("message", event => {
   if (event.source !== window || event.origin !== location.origin ||
@@ -49,12 +61,16 @@ async function decodeAdnXml(base64) {
 
 async function saveAdnZip(zip, startNsu, endNsu, count, complete) {
   zip.file("LEIA-ME.txt", `Documentos XML recebidos diretamente da API oficial do ADN com o certificado selecionado no Chrome.\nNSU inicial: ${startNsu}\nÚltimo NSU: ${endNsu}\nDocumentos: ${count}\nConsulta completa: ${complete ? "sim" : "não"}\nA situação e a assinatura digital dos documentos não foram verificadas pelo NFSe Analyzer.\n`);
+  await saveAdnArchive(zip, `nfse-adn-nsu-${startNsu + 1}-a-${endNsu}.zip`, count);
+}
+
+async function saveAdnArchive(zip, name, count) {
   adnFeedback.textContent = `Compactando ${count} documento(s)…`;
   const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `nfse-adn-nsu-${startNsu + 1}-a-${endNsu}.zip`;
+  link.download = name;
   document.body.append(link);
   link.click();
   link.remove();
@@ -69,6 +85,16 @@ adnStopButton.addEventListener("click", () => {
 
 adnExportButton.addEventListener("click", async () => {
   if (adnRunning) return;
+  const full = adnFullPackage.checked;
+  const company = adnDirectCompany.value.replace(/\D/g, "");
+  const directionFilter = adnDirectDirection.value;
+  const format = adnDirectFormat.value;
+  const from = adnDirectFrom.value;
+  const to = adnDirectTo.value;
+  if (full && ((company && ![11, 14].includes(company.length)) || (directionFilter && !company) || (from && to && from > to))) {
+    adnFeedback.textContent = "Confira o CNPJ/CPF e o período. Para filtrar a direção, informe a empresa.";
+    return;
+  }
   adnRunning = true;
   adnStopRequested = false;
   adnExportButton.disabled = true;
@@ -80,6 +106,8 @@ adnExportButton.addEventListener("click", async () => {
   let complete = false;
   let error = null;
   const zip = new JSZip();
+  const notes = [];
+  const events = [];
   try {
     while (!adnStopRequested && count < ADN_ZIP_LIMIT) {
       adnFeedback.textContent = `Consultando o ADN: ${count} documento(s), último NSU ${cursor}…`;
@@ -93,6 +121,11 @@ adnExportButton.addEventListener("click", async () => {
         const type = safeAdnName(item.type, "DOCUMENTO");
         const key = safeAdnName(item.key, "sem-chave");
         zip.file(`XML_ADN/${type}/NSU-${item.nsu}-${key}.xml`, xmlBytes);
+        if (full) {
+          const root = adnXmlDocument(xmlBytes);
+          if (root.localName === "NFSe") notes.push(adnParseNote(root, xmlBytes, `NSU-${item.nsu}.xml`));
+          else if (root.localName === "evento") events.push(adnParseEvent(root, xmlBytes, `NSU-${item.nsu}.xml`));
+        }
         cursor = item.nsu;
         count++;
       }
@@ -103,11 +136,33 @@ adnExportButton.addEventListener("click", async () => {
   }
   try {
     if (count) {
-      await saveAdnZip(zip, startNsu, cursor, count, complete && !error);
+      let exported = 0;
+      if (full) {
+        adnLinkEvents(notes, events);
+        const selected = notes.filter(note => {
+          const direction = note.issuerId === company ? "issued" : note.recipientId === company ? "received" : "other";
+          const month = note.issue.slice(0, 7);
+          return (!company || (direction !== "other" && (!directionFilter || directionFilter === direction))) &&
+            (!from || month >= from) && (!to || month <= to);
+        });
+        if (selected.length) {
+          const packageResult = await adnCreatePackage(selected, company, {
+            includePdf: format === "all", includeXlsx: format !== "xml-only",
+            onProgress: message => { adnFeedback.textContent = message; }
+          });
+          packageResult.zip.file("CONSULTA-ADN.txt", `NSU inicial: ${startNsu}\nÚltimo NSU: ${cursor}\nDocumentos recebidos: ${count}\nNFS-e selecionadas: ${selected.length}\nConsulta completa: ${complete && !error ? "sim" : "não"}\n`);
+          await saveAdnArchive(packageResult.zip, `nfse-pacote-nsu-${startNsu + 1}-a-${cursor}.zip`, selected.length);
+          exported = selected.length;
+        } else {
+          await saveAdnZip(zip, startNsu, cursor, count, complete && !error);
+          adnFeedback.textContent = "Nenhuma NFS-e correspondeu aos filtros; o ZIP original foi salvo.";
+        }
+      } else await saveAdnZip(zip, startNsu, cursor, count, complete && !error);
       adnNextNsu = complete ? 0 : cursor;
-      adnExportButton.textContent = complete ? "Baixar XMLs em ZIP" : `Continuar do NSU ${cursor}`;
+      adnExportButton.textContent = complete ? (full ? "Baixar pacote completo" : "Baixar XMLs em ZIP") : `Continuar do NSU ${cursor}`;
+      if (full && exported) adnFeedback.textContent = `Pacote preparado: ${exported} NFS-e selecionada(s), NSU até ${cursor}${complete ? "." : "; continue para o próximo lote."}`;
     }
-    adnFeedback.textContent = error
+    if (!(full && count && !error)) adnFeedback.textContent = error
       ? `${error.message} ${count ? `ZIP parcial com ${count} documento(s) salvo; continue do NSU ${cursor}.` : "Nenhum XML foi baixado."}`
       : complete
         ? `Concluído: ${count} documento(s) no ZIP.`
