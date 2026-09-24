@@ -16,7 +16,7 @@
     <script src="./vendor/exceljs.min.js" defer></script>
     <script src="./vendor/jszip.min.js" defer></script>
     <script src="./vendor/pdf-lib.min.js" defer></script>
-    <script src="./script.js" defer></script>
+    <script src="./site-status.js" defer></script>
     <script src="./xml-import.js" defer></script>
     <script src="./adn-export.js" defer></script>
     <script src="./danfse.js" defer></script>
@@ -33,7 +33,6 @@
       </a>
       <nav class="desktop-nav" aria-label="Navegação principal">
         <a href="#como-funciona">Como funciona</a>
-        <a href="#visualizacao">Visualização</a>
         <a href="#privacidade">Privacidade</a>
       </nav>
       <a class="header-cta" href="#instalar-complemento">Instalar complemento <span aria-hidden="true">↗</span></a>
@@ -54,7 +53,7 @@
           <div class="hero-notes"><span>✓ Gratuito</span><span>✓ Sem cadastro</span><span>✓ Sem envio de arquivos</span>
           </div>
         </div>
-        <div class="hero-visual" aria-label="Prévia ilustrativa do painel de análise">
+        <div class="hero-visual" aria-label="Ilustração de notas organizadas">
           <div class="visual-orbit orbit-one"></div>
           <div class="visual-orbit orbit-two"></div>
           <div class="floating-tag tag-top"><span class="tag-icon">✓</span> Notas organizadas</div>
@@ -182,94 +181,6 @@
           <p class="prototype-note">A consulta acontece no seu Chrome. O site não recebe sua senha nem envia as notas ao
             nosso servidor.</p>
         </div>
-      </section>
-
-      <section id="visualizacao" class="dashboard-section section-wrap" aria-labelledby="dashboard-title">
-        <div class="dashboard-heading">
-          <div><span class="section-kicker">VISUALIZAÇÃO</span>
-            <h2 id="dashboard-title">Um retrato claro das suas notas</h2>
-            <p id="data-description">Exemplo com dados ilustrativos para explorar a interface.</p>
-          </div><span class="demo-label" id="data-label"><span></span> DADOS DE EXEMPLO</span>
-        </div>
-        <div class="metric-grid">
-          <article class="metric-card"><span class="metric-icon blue" aria-hidden="true">◫</span><span
-              class="metric-label">Total válido</span><strong id="metric-total">—</strong><small>Sem canceladas ou
-              substituídas</small></article>
-          <article class="metric-card"><span class="metric-icon green" aria-hidden="true">✓</span><span
-              class="metric-label">Notas válidas</span><strong id="metric-valid">—</strong><small>Incluídas no
-              total</small></article>
-          <article class="metric-card"><span class="metric-icon orange" aria-hidden="true">×</span><span
-              class="metric-label">Canceladas</span><strong id="metric-cancelled">—</strong><small>Desconsideradas do
-              total</small></article>
-          <article class="metric-card"><span class="metric-icon purple" aria-hidden="true">↔</span><span
-              class="metric-label">Substituídas</span><strong id="metric-substituted">—</strong><small>Nota original
-              substituída</small></article>
-        </div>
-        <div class="data-grid">
-          <article class="data-card chart-card">
-            <div class="card-heading">
-              <div>
-                <h3>Evolução mensal</h3>
-                <p>Valor das notas válidas</p>
-              </div>
-            </div>
-            <div class="chart-area" id="chart-area" aria-label="Valor mensal das notas válidas"></div>
-          </article>
-          <article class="data-card distribution-card">
-            <div class="card-heading">
-              <div>
-                <h3>Situação das notas</h3>
-                <p>Distribuição no período</p>
-              </div>
-            </div>
-            <div class="donut-wrap">
-              <div class="donut" id="status-donut">
-                <div><strong id="donut-total">0</strong><span>notas</span></div>
-              </div>
-            </div>
-            <div class="legend" id="status-legend"></div>
-          </article>
-        </div>
-        <article class="data-card table-card">
-          <div class="card-heading table-heading">
-            <div>
-              <h3>Notas fiscais</h3>
-              <p>Encontre rapidamente o que precisa.</p>
-            </div>
-            <div class="export-actions"><button class="button button-disabled" type="button" id="export-csv-button"
-                disabled>↧ Exportar CSV</button><button class="button button-disabled" type="button" id="export-button"
-                disabled>↧ Exportar XLSX</button></div>
-          </div>
-          <div class="table-tools"><label class="search-box"><span aria-hidden="true">⌕</span><span
-                class="sr-only">Buscar nota, cliente ou número</span><input id="search-input" type="search"
-                placeholder="Buscar por cliente ou número" /></label><label class="filter-box"><span
-                class="sr-only">Filtrar situação</span><select id="status-filter">
-                <option value="all">Todas as situações</option>
-                <option value="valid">Válidas</option>
-                <option value="cancelled">Canceladas</option>
-                <option value="substituted">Substituídas</option>
-                <option value="unknown">Não identificadas</option>
-              </select></label><label class="date-box">De <input id="date-from" type="date"
-                aria-label="Data inicial" /></label><label class="date-box">Até <input id="date-to" type="date"
-                aria-label="Data final" /></label></div>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Número</th>
-                  <th>Cliente</th>
-                  <th>Emissão</th>
-                  <th>Valor</th>
-                  <th>Situação</th>
-                  <th>XML</th>
-                </tr>
-              </thead>
-              <tbody id="notes-body"></tbody>
-            </table>
-          </div>
-          <div class="table-footer"><span id="result-count"></span><span id="source-label">Dados de exemplo</span></div>
-          <p id="xml-action-feedback" class="xml-action-feedback" role="status" aria-live="polite"></p>
-        </article>
       </section>
 
       <section id="privacidade" class="privacy-section section-wrap">
