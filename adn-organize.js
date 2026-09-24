@@ -116,7 +116,7 @@ function adnParseEvent(root, bytes, sourceName) {
   const key = adnText(request, "chNFSe");
   const eventType = [...(request?.children || [])].find(child => /^e\d{6}$/.test(child.localName))?.localName || "";
   if (!/^\d{50}$/.test(key) || !eventType) throw new Error("Evento sem chave ou tipo válido no ZIP.");
-  return { key, eventType, date: adnText(request, "dhEvento"), bytes, sourceName };
+  return { key, id: info?.getAttribute("Id") || "", eventType, date: adnText(request, "dhEvento"), bytes, sourceName };
 }
 
 function adnLinkEvents(notes, events) {
@@ -132,25 +132,77 @@ function adnLinkEvents(notes, events) {
   return unmatched;
 }
 
-async function adnReadZip(file) {
-  if (file.size > 100 * 1024 * 1024) throw new Error("O ZIP deve ter no máximo 100 MB.");
+async function adnOpenZip(file) {
+  if (file.size > 100 * 1024 * 1024) throw new Error(`${file.name}: o ZIP deve ter no máximo 100 MB.`);
   const archive = await JSZip.loadAsync(file);
   const entries = Object.values(archive.files).filter(entry => !entry.dir && entry.name.toLowerCase().endsWith(".xml"));
-  if (!entries.length || entries.length > 5000) throw new Error("Selecione um ZIP do ADN com até 5.000 XMLs.");
+  if (entries.length > 5050) throw new Error(`${file.name}: o ZIP contém mais de 5.050 XMLs.`);
+  const metadataFile = archive.file("CONSULTA-ADN.txt") || archive.file("LEIA-ME.txt");
+  const metadata = metadataFile ? await metadataFile.async("string") : "";
+  const start = metadata.match(/^NSU inicial:\s*(\d+)\s*$/m);
+  const end = metadata.match(/^Último NSU:\s*(\d+)\s*$/m);
+  const complete = metadata.match(/^Consulta completa:\s*(sim|não)\s*$/m);
+  if (!start || !end || !complete) throw new Error(`${file.name}: não foi possível confirmar o intervalo de NSUs. Selecione os ZIPs originais baixados pelo site.`);
+  const range = { start: Number(start[1]), end: Number(end[1]), complete: complete[1] === "sim" };
+  if (!Number.isSafeInteger(range.start) || !Number.isSafeInteger(range.end) || range.end < range.start ||
+    (!entries.length && !(range.complete && range.start === range.end))) {
+    throw new Error(`${file.name}: intervalo de NSUs ou conteúdo inválido.`);
+  }
+  const raw = entries.every(entry => entry.name.startsWith("XML_ADN/"));
+  if (raw) {
+    const declaredCount = metadata.match(/^Documentos:\s*(\d+)\s*$/m);
+    const nsus = entries.map(entry => Number(entry.name.match(/\/NSU-(\d+)-/)?.[1]));
+    if (!declaredCount || Number(declaredCount[1]) !== entries.length ||
+      nsus.some(nsu => !Number.isSafeInteger(nsu) || nsu <= range.start || nsu > range.end) ||
+      new Set(nsus).size !== nsus.length || (nsus.length && Math.max(...nsus) !== range.end)) {
+      throw new Error(`${file.name}: a quantidade de documentos ou os NSUs não correspondem ao manifesto do ZIP.`);
+    }
+  }
+  return { file, entries, range, raw };
+}
+
+async function adnReadZips(files) {
+  if (!files.length) throw new Error("Selecione todos os ZIPs da consulta ao ADN.");
+  const opened = [];
+  for (const file of files) opened.push(await adnOpenZip(file));
+  opened.sort((a, b) => a.range.start - b.range.start);
+  if (opened[0].range.start !== 0) throw new Error("Falta o primeiro ZIP da consulta (NSU inicial 0).");
+  for (let index = 1; index < opened.length; index++) {
+    if (opened[index - 1].range.complete) throw new Error("Há ZIPs após a conclusão da consulta. Selecione apenas os lotes da mesma consulta.");
+    if (opened[index].range.start !== opened[index - 1].range.end) {
+      throw new Error(`Falta um lote entre os NSUs ${opened[index - 1].range.end} e ${opened[index].range.start}.`);
+    }
+  }
+  if (!opened.at(-1).range.complete) throw new Error("A consulta ainda não terminou. Baixe os próximos lotes e selecione todos os ZIPs antes de gerar o relatório.");
+  if (opened.some(item => !item.raw)) {
+    throw new Error("Para gerar o relatório consolidado, selecione os ZIPs originais de XMLs do ADN, sem pacotes já filtrados.");
+  }
   const notes = [];
   const events = [];
-  for (let index = 0; index < entries.length; index++) {
-    if (index % 50 === 0) adnOrganizeFeedback.textContent = `Lendo XMLs: ${index}/${entries.length}…`;
-    const entry = entries[index];
-    const bytes = await entry.async("uint8array");
-    if (bytes.length > 5 * 1024 * 1024) throw new Error("Há um XML maior que 5 MB no ZIP.");
-    const root = adnXmlDocument(bytes);
-    if (root.localName === "NFSe") notes.push(adnParseNote(root, bytes, entry.name));
-    else if (root.localName === "evento") events.push(adnParseEvent(root, bytes, entry.name));
-    else throw new Error("O ZIP contém um XML que não é NFS-e nem evento.");
+  const noteKeys = new Set();
+  const eventIds = new Set();
+  for (const [fileIndex, { file, entries }] of opened.entries()) {
+    for (let index = 0; index < entries.length; index++) {
+      if (index % 50 === 0) adnOrganizeFeedback.textContent = `Lendo ZIP ${fileIndex + 1}/${opened.length}: ${index}/${entries.length} XMLs…`;
+      const entry = entries[index];
+      const bytes = await entry.async("uint8array");
+      if (bytes.length > 5 * 1024 * 1024) throw new Error(`${file.name}: há um XML maior que 5 MB.`);
+      const root = adnXmlDocument(bytes);
+      if (root.localName === "NFSe") {
+        const note = adnParseNote(root, bytes, entry.name);
+        if (noteKeys.has(note.key)) throw new Error(`A nota ${note.key} aparece em mais de um ZIP. Confira os lotes selecionados.`);
+        noteKeys.add(note.key);
+        notes.push(note);
+      } else if (root.localName === "evento") {
+        const event = adnParseEvent(root, bytes, entry.name);
+        if (event.id && eventIds.has(event.id)) throw new Error(`O evento ${event.id} aparece em mais de um ZIP. Confira os lotes selecionados.`);
+        if (event.id) eventIds.add(event.id);
+        events.push(event);
+      } else throw new Error(`${file.name}: o ZIP contém um XML que não é NFS-e nem evento.`);
+    }
   }
   const unmatched = adnLinkEvents(notes, events);
-  return { notes, events, unmatched };
+  return { notes, events, unmatched, zipCount: opened.length, firstNsu: opened[0].range.start, lastNsu: opened.at(-1).range.end };
 }
 
 function adnSelectedNotes() {
@@ -257,7 +309,7 @@ function adnPreviewSelection() {
     const company = adnCompany.value;
     const issued = company ? adnDocuments.notes.filter(note => note.issuerId === company).length : 0;
     const received = company ? adnDocuments.notes.filter(note => note.recipientId === company && note.issuerId !== company).length : 0;
-    adnOrganizeFeedback.textContent = `${adnDocuments.notes.length} NFS-e e ${adnDocuments.events.length} evento(s) no ZIP. ` +
+    adnOrganizeFeedback.textContent = `Consulta completa até o NSU ${adnDocuments.lastNsu}: ${adnDocuments.notes.length} NFS-e e ${adnDocuments.events.length} evento(s) em ${adnDocuments.zipCount} ZIP(s). ` +
       (company ? `Para a empresa selecionada: ${issued} emitida(s) e ${received} recebida(s). ` : "Selecione uma empresa para separar emitidas e recebidas. ") +
       `${notes.length} nota(s) correspondem aos filtros. ` +
       (adnDocuments.unmatched ? `${adnDocuments.unmatched} evento(s) sem nota correspondente.` : "Todos os eventos foram associados.");
@@ -433,13 +485,16 @@ async function adnCreatePackage(notes, companyId, { includePdf = true, includeXl
 adnZipInput.addEventListener("change", async () => {
   adnDocuments = null;
   adnOrganizeButton.disabled = true;
+  adnPreview.hidden = true;
+  adnPreviewBody.replaceChildren();
+  adnPreviewSummary.textContent = "";
   adnCompany.replaceChildren(new Option("Todas", ""));
   adnDirection.value = "";
   adnDirection.disabled = true;
-  const file = adnZipInput.files?.[0];
-  if (!file) return;
+  const files = [...(adnZipInput.files || [])];
+  if (!files.length) return;
   try {
-    adnDocuments = await adnReadZip(file);
+    adnDocuments = await adnReadZips(files);
     const companies = new Map();
     const frequency = new Map();
     for (const note of adnDocuments.notes) {

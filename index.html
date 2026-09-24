@@ -126,7 +126,7 @@
                 <button id="adn-stop-button" class="button" type="button" hidden>Parar e salvar parcial</button>
               </div>
               <div class="adn-direct-options">
-                <label><input id="adn-full-package" type="checkbox" /> Gerar pacote completo em uma operação</label>
+                <label><input id="adn-full-package" type="checkbox" /> Gerar pacote completo se a consulta terminar neste lote</label>
                 <div id="adn-direct-filters" hidden>
                   <label>CNPJ/CPF <input id="adn-direct-company" inputmode="numeric" placeholder="Detectar automaticamente" /></label>
                   <label>Direção <select id="adn-direct-direction"><option value="">Emitidas e recebidas</option><option value="issued">Emitidas</option><option value="received">Recebidas</option></select></label>
@@ -134,16 +134,16 @@
                   <label>Até <input id="adn-direct-to" type="month" /></label>
                   <label>Formato <select id="adn-direct-format"><option value="all">XML + PDF + XLSX + visualizador</option><option value="xml-xlsx">XML + XLSX + visualizador</option><option value="xml-only">Somente XML + visualizador</option></select></label>
                 </div>
-                <p id="adn-direct-help" hidden>Ao escolher Emitidas ou Recebidas, o site identifica automaticamente a empresa se o mesmo CNPJ/CPF aparecer em todas as notas do lote. Você também pode informá-lo acima.</p>
+                <p id="adn-direct-help" hidden>Ao escolher Emitidas ou Recebidas, o site identifica automaticamente a empresa se o mesmo CNPJ/CPF aparecer em todas as notas do lote. Se houver mais lotes, baixe todos os ZIPs de XMLs e consolide-os abaixo antes de gerar a planilha.</p>
               </div>
-              <p id="adn-feedback" role="status" aria-live="polite">Até 5.000 documentos por ZIP. Se houver mais, continue a partir do NSU indicado.</p>
+              <p id="adn-feedback" role="status" aria-live="polite">Até 5.000 documentos por ZIP. Se houver mais, continue a partir do NSU indicado e depois selecione todos os ZIPs para gerar o relatório consolidado.</p>
             </div>
           </div>
           <details class="alternative-import adn-organize" id="adn-organize">
-            <summary>Organizar um ZIP baixado do ADN</summary>
-            <p>Selecione o ZIP para relacionar os eventos às notas e criar uma planilha com os XMLs organizados. Você também pode incluir uma representação em PDF de cada nota. Tudo é processado nesta aba.</p>
+            <summary>Consolidar ZIPs do ADN</summary>
+            <p>Selecione todos os ZIPs da consulta ao ADN. O site confere a sequência dos NSUs, relaciona os eventos às notas entre os lotes e só então cria a planilha consolidada. Você também pode incluir PDFs de conferência. Tudo é processado nesta aba.</p>
             <div class="adn-organize-controls">
-              <input id="adn-zip-input" type="file" accept=".zip,application/zip" aria-label="Selecionar ZIP do ADN" />
+              <input id="adn-zip-input" type="file" accept=".zip,application/zip" multiple aria-label="Selecionar todos os ZIPs da consulta ao ADN" />
               <label>Empresa <select id="adn-company"><option value="">Todas</option></select></label>
               <label>Direção <select id="adn-direction"><option value="">Emitidas e recebidas</option><option value="issued">Emitidas</option><option value="received">Recebidas</option></select></label>
               <label>Período <select id="adn-period-kind"><option value="issue">Mês de emissão</option><option value="competence">Competência</option></select></label>
@@ -151,11 +151,11 @@
               <label>Até <input id="adn-month-to" type="month" /></label>
               <label>Situação <select id="adn-status-filter"><option value="">Todas</option><option value="valid">Válidas</option><option value="cancelled">Canceladas</option><option value="substituted">Substituídas</option></select></label>
               <label class="adn-pdf-option"><input id="adn-include-pdf" type="checkbox" checked /> Incluir PDFs das notas</label>
-              <button id="adn-organize-button" class="button button-primary" type="button" disabled>Gerar ZIP organizado</button>
+              <button id="adn-organize-button" class="button button-primary" type="button" disabled>Gerar ZIP consolidado</button>
             </div>
-            <p id="adn-organize-feedback" role="status" aria-live="polite">Selecione um ZIP do ADN para começar.</p>
+            <p id="adn-organize-feedback" role="status" aria-live="polite">Selecione todos os ZIPs do ADN para começar.</p>
             <div id="adn-batch-preview" class="adn-batch-preview" hidden>
-              <div class="adn-preview-top"><strong>Visualizador do lote</strong><input id="adn-preview-search" type="search" placeholder="Buscar número, cliente, prestador ou chave" aria-label="Buscar notas no lote" /></div>
+              <div class="adn-preview-top"><strong>Visualizador consolidado</strong><input id="adn-preview-search" type="search" placeholder="Buscar número, cliente, prestador ou chave" aria-label="Buscar notas consolidadas" /></div>
               <p id="adn-preview-summary"></p>
               <div class="table-scroll"><table><thead><tr><th>Número</th><th>Emissão</th><th>Prestador</th><th>Tomador</th><th>Valor</th><th>Situação</th></tr></thead><tbody id="adn-preview-body"></tbody></table></div>
               <div class="adn-preview-pages"><p id="adn-preview-count"></p><button id="adn-preview-prev" class="button" type="button">Anterior</button><button id="adn-preview-next" class="button" type="button">Próxima</button></div>

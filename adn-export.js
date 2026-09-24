@@ -130,6 +130,7 @@ adnExportButton.addEventListener("click", async () => {
       if (!Array.isArray(result.items) || result.items.length > 50) throw new Error("Lote inválido recebido do ADN.");
       if (result.finished || result.items.length === 0) { complete = true; break; }
       for (const item of result.items) {
+        if (count >= ADN_ZIP_LIMIT) break;
         if (!Number.isSafeInteger(item.nsu) || item.nsu <= cursor) throw new Error("Sequência de NSU inválida.");
         const xmlBytes = await decodeAdnXml(item.archive);
         const type = safeAdnName(item.type, "DOCUMENTO");
@@ -145,13 +146,25 @@ adnExportButton.addEventListener("click", async () => {
       }
       await new Promise(resolve => setTimeout(resolve, 200));
     }
+    if (!adnStopRequested && count === ADN_ZIP_LIMIT && !complete) {
+      const next = await requestAdnBatch(cursor);
+      if (!next?.ok) throw new Error(next?.error || "Falha ao verificar o fim da consulta ao ADN.");
+      complete = next.finished || (Array.isArray(next.items) && next.items.length === 0);
+    }
   } catch (caught) {
     error = caught;
   }
   try {
+    if (!count && complete && startNsu > 0) {
+      await saveAdnZip(zip, startNsu, cursor, 0, true);
+      adnNextNsu = 0;
+      adnExportButton.textContent = full ? "Baixar pacote completo" : "Baixar XMLs em ZIP";
+      adnFeedback.textContent = "Consulta concluída. Selecione também o ZIP de confirmação junto com os lotes anteriores para gerar o relatório consolidado.";
+      return;
+    }
     if (count) {
       let exported = 0;
-      if (full) {
+      if (full && complete && startNsu === 0 && !error) {
         adnLinkEvents(notes, events);
         const resolvedCompany = company || (directionFilter ? inferAdnCompany(notes) : "");
         if (directionFilter && !resolvedCompany) {
@@ -179,7 +192,10 @@ adnExportButton.addEventListener("click", async () => {
           await saveAdnZip(zip, startNsu, cursor, count, complete && !error);
           adnFeedback.textContent = "Nenhuma NFS-e correspondeu aos filtros; o ZIP original foi salvo.";
         }
-      } else await saveAdnZip(zip, startNsu, cursor, count, complete && !error);
+      } else {
+        await saveAdnZip(zip, startNsu, cursor, count, complete && !error);
+        if (full) adnFeedback.textContent = "Lote XML salvo sem planilha parcial. Continue até o fim e selecione todos os ZIPs em 'Consolidar ZIPs do ADN' para gerar o relatório consolidado.";
+      }
       adnNextNsu = complete ? 0 : cursor;
       adnExportButton.textContent = complete ? (full ? "Baixar pacote completo" : "Baixar XMLs em ZIP") : `Continuar do NSU ${cursor}`;
       if (full && exported) adnFeedback.textContent = `Pacote preparado: ${exported} NFS-e selecionada(s), NSU até ${cursor}${complete ? "." : "; continue para o próximo lote."}`;
