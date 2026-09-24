@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NFSe Analyzer — Portal",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Consulta XMLs de NFS-e pelo ADN com o certificado selecionado no Chrome para análise local.",
   "minimum_chrome_version": "102",
   "icons": {

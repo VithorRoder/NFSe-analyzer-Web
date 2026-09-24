@@ -4,7 +4,7 @@ const ADN_TEST_URL = "https://adn.nfse.gov.br/contribuintes/DFe/0";
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (sender.id !== chrome.runtime.id) return;
   if (message?.type === "NFSE_TEST_ADN") {
-    if (sender.url !== chrome.runtime.getURL("popup.html")) return;
+    if (sender.url !== chrome.runtime.getURL("certificate-status.html")) return;
     testAdnConnection()
       .then(result => sendResponse({ ok: true, ...result }))
       .catch(error => sendResponse({ ok: false, error: error.message || "Falha na conexão com o ADN." }));
@@ -32,6 +32,14 @@ async function testAdnConnection() {
       redirect: "error",
       signal: controller.signal
     });
+    if (!response.ok) {
+      throw new Error(`O ADN respondeu HTTP ${response.status}. Confira o certificado selecionado.`);
+    }
+    const data = await response.json();
+    if (!data || !Array.isArray(data.LoteDFe) ||
+      (Array.isArray(data.Erros) && data.Erros.length > 0)) {
+      throw new Error("O ADN não retornou uma resposta válida da distribuição de documentos.");
+    }
     return { status: response.status };
   } finally {
     clearTimeout(timeout);

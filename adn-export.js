@@ -10,7 +10,6 @@ const adnDirectDirection = document.querySelector("#adn-direct-direction");
 const adnDirectFrom = document.querySelector("#adn-direct-from");
 const adnDirectTo = document.querySelector("#adn-direct-to");
 const adnDirectFormat = document.querySelector("#adn-direct-format");
-const ADN_ZIP_LIMIT = 5000;
 const adnPending = new Map();
 let adnRunning = false;
 let adnStopRequested = false;
@@ -123,14 +122,13 @@ adnExportButton.addEventListener("click", async () => {
   const notes = [];
   const events = [];
   try {
-    while (!adnStopRequested && count < ADN_ZIP_LIMIT) {
+    while (!adnStopRequested) {
       adnFeedback.textContent = `Consultando o ADN: ${count} documento(s), último NSU ${cursor}…`;
       const result = await requestAdnBatch(cursor);
       if (!result?.ok) throw new Error(result?.error || "Falha na consulta ao ADN.");
       if (!Array.isArray(result.items) || result.items.length > 50) throw new Error("Lote inválido recebido do ADN.");
       if (result.finished || result.items.length === 0) { complete = true; break; }
       for (const item of result.items) {
-        if (count >= ADN_ZIP_LIMIT) break;
         if (!Number.isSafeInteger(item.nsu) || item.nsu <= cursor) throw new Error("Sequência de NSU inválida.");
         const xmlBytes = await decodeAdnXml(item.archive);
         const type = safeAdnName(item.type, "DOCUMENTO");
@@ -146,20 +144,14 @@ adnExportButton.addEventListener("click", async () => {
       }
       await new Promise(resolve => setTimeout(resolve, 200));
     }
-    if (!adnStopRequested && count === ADN_ZIP_LIMIT && !complete) {
-      const next = await requestAdnBatch(cursor);
-      if (!next?.ok) throw new Error(next?.error || "Falha ao verificar o fim da consulta ao ADN.");
-      complete = next.finished || (Array.isArray(next.items) && next.items.length === 0);
-    }
   } catch (caught) {
     error = caught;
   }
   try {
     if (!count && complete && startNsu > 0) {
-      await saveAdnZip(zip, startNsu, cursor, 0, true);
       adnNextNsu = 0;
       adnExportButton.textContent = full ? "Baixar pacote completo" : "Baixar XMLs em ZIP";
-      adnFeedback.textContent = "Consulta concluída. Selecione também o ZIP de confirmação junto com os lotes anteriores para gerar o relatório consolidado.";
+      adnFeedback.textContent = "Consulta concluída. Nenhum documento novo foi encontrado.";
       return;
     }
     if (count) {
@@ -194,11 +186,11 @@ adnExportButton.addEventListener("click", async () => {
         }
       } else {
         await saveAdnZip(zip, startNsu, cursor, count, complete && !error);
-        if (full) adnFeedback.textContent = "Lote XML salvo sem planilha parcial. Continue até o fim e selecione todos os ZIPs em 'Consolidar ZIPs do ADN' para gerar o relatório consolidado.";
+        if (full) adnFeedback.textContent = "XMLs salvos sem planilha parcial. Após resolver a interrupção, use 'Consolidar ZIPs do ADN' para gerar o relatório completo.";
       }
       adnNextNsu = complete ? 0 : cursor;
       adnExportButton.textContent = complete ? (full ? "Baixar pacote completo" : "Baixar XMLs em ZIP") : `Continuar do NSU ${cursor}`;
-      if (full && exported) adnFeedback.textContent = `Pacote preparado: ${exported} NFS-e selecionada(s), NSU até ${cursor}${complete ? "." : "; continue para o próximo lote."}`;
+      if (full && exported) adnFeedback.textContent = `Pacote completo preparado: ${exported} NFS-e selecionada(s), NSU até ${cursor}.`;
     }
     if (!(full && count && !error)) adnFeedback.textContent = error
       ? `${error.message} ${count ? `ZIP parcial com ${count} documento(s) salvo; continue do NSU ${cursor}.` : "Nenhum XML foi baixado."}`
@@ -208,7 +200,16 @@ adnExportButton.addEventListener("click", async () => {
           ? `ZIP com ${count} documento(s) preparado. Continue do NSU ${cursor} para obter os próximos.`
           : "Consulta interrompida antes do primeiro documento.";
   } catch (saveError) {
-    adnFeedback.textContent = `Não foi possível gerar o ZIP: ${saveError.message}`;
+    if (full && count) {
+      try {
+        await saveAdnZip(zip, startNsu, cursor, count, complete && !error);
+        adnFeedback.textContent = `Não foi possível gerar o pacote completo (${saveError.message}). Os XMLs foram salvos para consolidação manual.`;
+      } catch (backupError) {
+        adnFeedback.textContent = `Não foi possível gerar o pacote nem salvar os XMLs: ${backupError.message}`;
+      }
+    } else {
+      adnFeedback.textContent = `Não foi possível gerar o ZIP: ${saveError.message}`;
+    }
   } finally {
     adnRunning = false;
     adnExportButton.disabled = false;

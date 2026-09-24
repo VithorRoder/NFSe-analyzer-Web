@@ -14,9 +14,9 @@ A versão da Chrome Web Store ainda está em rascunho. Até a publicação:
 ## Baixar notas pelo ADN
 
 1. Selecione o certificado digital no Chrome quando solicitado.
-2. No site, clique em **Baixar XMLs pelo ADN**. Para obter XMLs, PDFs de conferência, planilha e visualizador em um único pacote, marque **Gerar pacote completo em uma operação** e escolha os filtros.
-3. Se a conexão falhar, clique no ícone do complemento, use **Abrir ADN e selecionar certificado** e repita o teste de acesso.
-4. O ADN é consultado por NSU. Cada ZIP contém até 5.000 documentos; se houver mais, use **Continuar do NSU** na mesma aba.
+2. No site, clique em **Baixar pacote completo** e escolha os filtros. A consulta percorre todos os lotes por NSU e gera XMLs, PDFs de conferência, planilha e visualizador ao terminar.
+3. Para conferir o acesso, clique no ícone do complemento e use **Testar acesso ao ADN**. Uma aba mostra o resultado da API; quando o acesso é confirmado, exibe **Certificado válido** e se fecha automaticamente.
+4. Se a consulta for interrompida, o site salva os XMLs recebidos sem uma planilha parcial. Você pode consolidar os ZIPs salvos na seção **Consolidar ZIPs do ADN**.
 
 A consulta retorna documentos autorizados ao certificado e não depende da listagem de notas emitidas do portal. Os filtros de empresa e período são aplicados localmente depois que o lote é recebido. O complemento não valida criptograficamente a assinatura dos XMLs.
 

@@ -19,6 +19,8 @@ files = [
     EXTENSION / "background.js",
     EXTENSION / "popup.html",
     EXTENSION / "popup.js",
+    EXTENSION / "certificate-status.html",
+    EXTENSION / "certificate-status.js",
     EXTENSION / "site-bridge.js",
     *(EXTENSION / "icons").glob("*.png"),
 ]
