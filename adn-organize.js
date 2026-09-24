@@ -282,10 +282,10 @@ function adnBuildReport(notes, companyId) {
     ["Total válido", valid.length, valid.reduce((sum, note) => sum + note.serviceValue, 0)],
     ["Retenções informadas", notes.filter(note => note.totalRetained != null).length,
       notes.reduce((sum, note) => sum + (note.totalRetained || 0), 0)],
-    ["PIS informado", notes.filter(note => note.pisValue != null).length,
-      notes.reduce((sum, note) => sum + (note.pisValue || 0), 0)],
-    ["Cofins informado", notes.filter(note => note.cofinsValue != null).length,
-      notes.reduce((sum, note) => sum + (note.cofinsValue || 0), 0)]
+    ["PIS das válidas", valid.filter(note => note.pisValue != null).length,
+      valid.reduce((sum, note) => sum + (note.pisValue || 0), 0)],
+    ["Cofins das válidas", valid.filter(note => note.cofinsValue != null).length,
+      valid.reduce((sum, note) => sum + (note.cofinsValue || 0), 0)]
   ]);
   summary.columns = [{ width: 27 }, { width: 17 }, { width: 29 }];
   summary.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
