@@ -71,6 +71,18 @@ function adnSafe(value, fallback) {
   return String(value || fallback).replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 70) || fallback;
 }
 
+function adnIdentifyCompany(notes) {
+  if (!notes.length) return "";
+  const common = new Set([notes[0].issuerId, notes[0].recipientId].filter(Boolean));
+  for (const note of notes.slice(1)) {
+    for (const id of common) {
+      if (id !== note.issuerId && id !== note.recipientId) common.delete(id);
+    }
+    if (!common.size) return "";
+  }
+  return common.size === 1 ? [...common][0] : "";
+}
+
 function adnParseNote(root, bytes, sourceName) {
   const info = adnNode(root, "infNFSe");
   const dps = adnNode(info, "DPS", "infDPS");
@@ -454,10 +466,12 @@ const valid=data.filter(n=>n.status==='Válida');$('total-count').textContent=da
 }
 
 async function adnCreatePackage(notes, companyId, { includePdf = true, includeXlsx = true, includeViewer = true, onProgress = () => {} } = {}) {
+  const referenceCompany = companyId || adnIdentifyCompany(notes);
+  if (!referenceCompany) throw new Error("Informe o CNPJ/CPF da empresa para classificar as notas emitidas e recebidas.");
   const zip = new JSZip();
   let eventCount = 0;
   for (const [index, note] of notes.entries()) {
-    const selectedId = companyId || note.issuerId;
+    const selectedId = referenceCompany;
     const company = adnSafe(selectedId, "sem-documento");
     const direction = note.issuerId === selectedId ? "EMITIDAS" : note.recipientId === selectedId ? "RECEBIDAS" : "OUTRAS";
     const competence = /^\d{4}-\d{2}$/.test(note.competence) ? note.competence : "sem-competencia";
@@ -475,9 +489,9 @@ async function adnCreatePackage(notes, companyId, { includePdf = true, includeXl
   }
   if (includeXlsx) {
     onProgress(`Gerando planilha para ${notes.length} nota(s)…`);
-    zip.file("RELATORIOS/notas-adn.xlsx", await adnBuildReport(notes, companyId));
+    zip.file("RELATORIOS/notas-adn.xlsx", await adnBuildReport(notes, referenceCompany));
   }
-  if (includeViewer) zip.file("VISUALIZADOR/index.html", adnViewerHtml(notes, companyId));
+  if (includeViewer) zip.file("VISUALIZADOR/index.html", adnViewerHtml(notes, referenceCompany));
   zip.file("LEIA-ME.txt", `XMLs originais preservados. ${notes.length} NFS-e e ${eventCount} eventos associados. Situação derivada dos eventos e101101 (cancelamento) e e105102 (cancelamento por substituição). Relatório, PDFs e visualizador são representações locais para conferência e não substituem o XML ou a consulta ao portal oficial. A assinatura digital não foi validada.\n`);
   return { zip, eventCount };
 }
@@ -510,7 +524,7 @@ adnZipInput.addEventListener("change", async () => {
     const common = [...frequency].filter(([, count]) => count === adnDocuments.notes.length);
     if (common.length === 1) {
       adnCompany.value = common[0][0];
-      adnDirection.value = "issued";
+      adnDirection.value = "";
     }
     adnDirection.disabled = !adnCompany.value;
     adnPreviewSelection();

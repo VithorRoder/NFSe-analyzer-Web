@@ -47,18 +47,6 @@ function safeAdnName(value, fallback) {
   return String(value || fallback).replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 70) || fallback;
 }
 
-function inferAdnCompany(notes) {
-  if (!notes.length) return "";
-  const ids = note => new Set([note.issuerId, note.recipientId].filter(Boolean));
-  const common = ids(notes[0]);
-  for (const note of notes.slice(1)) {
-    const present = ids(note);
-    for (const id of common) if (!present.has(id)) common.delete(id);
-    if (!common.size) return "";
-  }
-  return common.size === 1 ? [...common][0] : "";
-}
-
 async function decodeAdnXml(base64) {
   const bytes = Uint8Array.from(atob(base64), character => character.charCodeAt(0));
   if (bytes[0] !== 0x1f || bytes[1] !== 0x8b) throw new Error("O documento não está compactado em GZIP.");
@@ -158,10 +146,10 @@ adnExportButton.addEventListener("click", async () => {
       let exported = 0;
       if (full && complete && startNsu === 0 && !error) {
         adnLinkEvents(notes, events);
-        const resolvedCompany = company || (directionFilter ? inferAdnCompany(notes) : "");
-        if (directionFilter && !resolvedCompany) {
+        const resolvedCompany = company || adnIdentifyCompany(notes);
+        if (!resolvedCompany) {
           await saveAdnZip(zip, startNsu, cursor, count, complete && !error);
-          adnFeedback.textContent = "Não foi possível identificar uma única empresa neste lote. O ZIP original foi salvo; informe o CNPJ/CPF para separar emitidas e recebidas.";
+          adnFeedback.textContent = "Não foi possível identificar uma única empresa na consulta. Os XMLs foram salvos; informe o CNPJ/CPF para classificar emitidas e recebidas.";
           adnNextNsu = complete ? 0 : cursor;
           adnExportButton.textContent = complete ? "Baixar pacote completo" : `Continuar do NSU ${cursor}`;
           return;
@@ -177,7 +165,7 @@ adnExportButton.addEventListener("click", async () => {
             includePdf: format === "all", includeXlsx: format !== "xml-only",
             onProgress: message => { adnFeedback.textContent = message; }
           });
-          packageResult.zip.file("CONSULTA-ADN.txt", `NSU inicial: ${startNsu}\nÚltimo NSU: ${cursor}\nDocumentos recebidos: ${count}\nNFS-e selecionadas: ${selected.length}\nConsulta completa: ${complete && !error ? "sim" : "não"}\n`);
+          packageResult.zip.file("CONSULTA-ADN.txt", `NSU inicial: ${startNsu}\nÚltimo NSU: ${cursor}\nDocumentos recebidos: ${count}\nCNPJ/CPF de referência: ${resolvedCompany}\nNFS-e selecionadas: ${selected.length}\nConsulta completa: ${complete && !error ? "sim" : "não"}\n`);
           await saveAdnArchive(packageResult.zip, `nfse-pacote-nsu-${startNsu + 1}-a-${cursor}.zip`, selected.length);
           exported = selected.length;
         } else {

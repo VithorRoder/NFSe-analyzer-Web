@@ -15,7 +15,7 @@ A versão da Chrome Web Store ainda está em rascunho. Até a publicação:
 
 1. Selecione o certificado digital no Chrome quando solicitado.
 2. No site, clique em **Baixar pacote completo** e escolha os filtros. A consulta percorre todos os lotes por NSU e gera XMLs, PDFs de conferência, planilha e visualizador ao terminar.
-3. No ícone do complemento, use **Selecionar certificado**. O Chrome abrirá temporariamente a API oficial para solicitar a escolha e a extensão verificará o acesso. Quando a API confirmar, aparecerá **Certificado válido** e a aba de verificação se fechará automaticamente. Se o Chrome já tiver guardado uma escolha para o ADN, ele poderá reutilizá-la sem abrir a lista; a extensão não controla nem troca essa escolha diretamente.
+3. No ícone do complemento, use **Selecionar certificado**. O Chrome abrirá temporariamente a API oficial para solicitar a escolha e a extensão verificará o acesso. Quando a API confirmar, aparecerá **Acesso ao ADN confirmado** e a aba de verificação se fechará automaticamente. Se a lista de certificados não aparecer, o Chrome reutilizou a escolha anterior; a extensão não troca essa escolha diretamente. Para trabalhar com certificados de empresas diferentes, use perfis separados do Chrome.
 4. Se a consulta for interrompida, o site salva os XMLs recebidos sem uma planilha parcial. Você pode consolidar os ZIPs salvos na seção **Consolidar ZIPs do ADN**.
 
 A consulta retorna documentos autorizados ao certificado e não depende da listagem de notas emitidas do portal. Os filtros de empresa e período são aplicados localmente depois que o lote é recebido. O complemento não valida criptograficamente a assinatura dos XMLs.

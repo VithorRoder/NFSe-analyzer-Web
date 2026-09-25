@@ -53,12 +53,12 @@ async function verifyCertificate() {
 
     status.className = "success";
     icon.textContent = "✓";
-    title.textContent = "Certificado válido";
-    description.textContent = "O ADN confirmou o acesso com o certificado usado pelo Chrome. Esta aba será fechada automaticamente.";
+    title.textContent = "Acesso ao ADN confirmado";
+    description.textContent = "O Chrome usou um certificado aceito pelo ADN. Se a lista de certificados não apareceu, a escolha anterior foi reutilizada; nenhum certificado foi trocado.";
     setTimeout(async () => {
       const tab = await chrome.tabs.getCurrent();
       if (tab?.id) await chrome.tabs.remove(tab.id).catch(() => {});
-    }, 2400);
+    }, 6000);
   } catch (error) {
     status.className = "error";
     icon.textContent = "!";
