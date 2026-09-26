@@ -5,5 +5,10 @@ window.addEventListener("message", (event) => {
   if (event.source !== window || event.origin !== location.origin) return;
   if (event.data?.source !== "nfse-analyzer-extension" || event.data.type !== "ready") return;
   const badge = document.querySelector("#connection-badge");
-  if (badge) badge.textContent = "Complemento conectado";
+  if (badge) {
+    badge.textContent = "Complemento conectado";
+    badge.classList.add("connected");
+  }
+  const installBanner = document.querySelector("#instalar-complemento");
+  if (installBanner) installBanner.hidden = true;
 });

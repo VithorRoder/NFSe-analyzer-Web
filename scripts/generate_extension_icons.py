@@ -12,7 +12,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 size = 512
 image = Image.new("RGBA", (size, size), (0, 0, 0, 0))
 draw = ImageDraw.Draw(image)
-draw.rounded_rectangle((32, 32, 480, 480), radius=124, fill="#5274f4")
+draw.rounded_rectangle((32, 32, 480, 480), radius=124, fill="#178451")
 
 for left, top, bottom, alpha in (
     (153, 281, 382, 200),
