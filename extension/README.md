@@ -2,9 +2,11 @@
 
 O complemento conecta o site [NFSe Analyzer](https://nfseanalyzer.vercel.app/) à API oficial do ADN. O Chrome apresenta o certificado digital quando necessário; o complemento não lê o arquivo `.pfx` nem sua senha. Os XMLs retornados são entregues à aba do site, onde são processados e compactados localmente.
 
-## Instalar para teste
+## Instalar pela Chrome Web Store
 
-A versão da Chrome Web Store ainda está em rascunho. Até a publicação:
+Abra a [página do NFSe Analyzer na Chrome Web Store](https://chromewebstore.google.com/detail/ohkpaipmjfkncgmcnjjheplfcocjnpno) e clique em **Usar no Chrome**. Depois, abra ou recarregue [o site](https://nfseanalyzer.vercel.app/).
+
+## Instalar manualmente para desenvolvimento e testes
 
 1. [Baixe o repositório em ZIP](https://github.com/VithorRoder/NFSe-analyzer-Web/archive/refs/heads/main.zip) e extraia os arquivos.
 2. No Chrome, abra `chrome://extensions` e ative **Modo do desenvolvedor**.
@@ -22,4 +24,4 @@ A consulta retorna documentos autorizados ao certificado e não depende da lista
 
 ## Pacote para a Chrome Web Store
 
-Execute `python scripts/package_extension.py` na raiz do repositório. O ZIP em `dist/` contém o `manifest.json`, os scripts e os ícones da extensão. Ao atualizar o rascunho da loja, envie a nova versão do pacote e revise as informações de privacidade e da ficha do item.
+Execute `python scripts/package_extension.py` na raiz do repositório. O ZIP em `dist/` contém o `manifest.json`, os scripts e os ícones da extensão. Ao publicar uma atualização na loja, envie a nova versão do pacote e revise as informações de privacidade e da ficha do item.
