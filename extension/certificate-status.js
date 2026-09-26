@@ -41,8 +41,8 @@ function openCertificateSelection() {
 async function verifyCertificate() {
   status.className = "checking";
   icon.textContent = "";
-  title.textContent = "Selecionando certificado…";
-  description.textContent = "Uma aba temporária da API oficial será aberta para o Chrome solicitar o certificado.";
+  title.textContent = "Verificando certificado em uso…";
+  description.textContent = "Uma aba temporária da API oficial será aberta. O Chrome pode solicitar um certificado ou reutilizar a escolha anterior.";
 
   try {
     await openCertificateSelection();
@@ -53,12 +53,8 @@ async function verifyCertificate() {
 
     status.className = "success";
     icon.textContent = "✓";
-    title.textContent = "Acesso ao ADN confirmado";
-    description.textContent = "O Chrome usou um certificado aceito pelo ADN. Se a lista de certificados não apareceu, a escolha anterior foi reutilizada; nenhum certificado foi trocado.";
-    setTimeout(async () => {
-      const tab = await chrome.tabs.getCurrent();
-      if (tab?.id) await chrome.tabs.remove(tab.id).catch(() => {});
-    }, 6000);
+    title.textContent = "Certificado ativo";
+    description.textContent = "O certificado em uso no Chrome foi aceito pelo ADN. Esta verificação não confirma uma troca de certificado. Se a lista não apareceu, o Chrome pode ter reutilizado a escolha anterior.";
   } catch (error) {
     status.className = "error";
     icon.textContent = "!";

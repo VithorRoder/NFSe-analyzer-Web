@@ -17,7 +17,7 @@
     p { margin: 0; color: #65728c; line-height: 1.55; }
     .hint { margin-top: 18px; font-size: 13px; }
     button { display: none; margin: 24px auto 0; padding: 11px 22px; border: 0; border-radius: 10px; background: #586be6; color: white; font: inherit; font-weight: 700; cursor: pointer; }
-    .error button { display: block; }
+    .error button, .success button { display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes pop { 0% { transform: scale(.5); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
     @media (prefers-reduced-motion: reduce) { .checking .icon::after, .success .icon { animation: none; } }
@@ -28,10 +28,10 @@
 <body>
   <main id="status" class="checking" role="status" aria-live="polite">
     <div id="icon" class="icon" aria-hidden="true"></div>
-    <h1 id="title">Verificando certificado…</h1>
+    <h1 id="title">Verificando acesso…</h1>
     <p id="description">O Chrome pode solicitar que você selecione seu certificado digital.</p>
-    <p class="hint">Se o Chrome já escolheu um certificado para o ADN, ele pode reutilizá-lo sem mostrar a lista. A extensão não consegue trocar essa escolha automaticamente.</p>
-    <button id="retry" type="button">Tentar selecionar novamente</button>
+    <p class="hint">A verificação confirma o acesso ao ADN, mas não identifica qual certificado foi usado. Para trocar o certificado, digite <code>chrome://restart</code> na barra de endereços do Chrome. Depois, verifique novamente e escolha o outro certificado.</p>
+    <button id="retry" type="button">Verificar novamente</button>
   </main>
 </body>
 
