@@ -68,6 +68,11 @@
       color: #4056a8
     }
 
+    #select-certificate.verified {
+      background: #e8f7f0;
+      color: #1f754e;
+    }
+
     .certificate-note {
       margin: 12px 0 0;
       font-size: 12px
@@ -81,8 +86,8 @@
   <h1>NFSe Analyzer</h1>
   <p>Verifique o acesso ao ADN com o certificado em uso no Chrome e depois baixe as notas no site.</p>
   <button id="open-site" type="button">Acessar site e baixar notas <span aria-hidden="true">↗</span></button>
-  <button id="select-certificate" type="button">Verificar certificado em uso</button>
-  <p class="certificate-note">Para trocar o certificado, digite <code>chrome://restart</code> na barra de endereços do Chrome. Depois, verifique novamente e escolha o outro certificado.</p>
+  <button id="select-certificate" type="button">Validar Certificado</button>
+  <p class="certificate-note" id="certificate-note" hidden>Para trocar o certificado, digite <code>chrome://restart</code> na barra de endereços do Chrome. Depois, valide novamente e escolha o outro certificado.</p>
 </body>
 
 </html>

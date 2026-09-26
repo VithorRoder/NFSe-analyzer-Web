@@ -45,15 +45,17 @@ async function verifyCertificate() {
   description.textContent = "Uma aba temporária da API oficial será aberta. O Chrome pode solicitar um certificado ou reutilizar a escolha anterior.";
 
   try {
+    await chrome.storage.session.remove("certificateVerified");
     await openCertificateSelection();
     title.textContent = "Verificando acesso…";
     description.textContent = "Consultando a API do ADN com o certificado usado pelo Chrome.";
     const response = await chrome.runtime.sendMessage({ type: "NFSE_TEST_ADN" });
     if (!response?.ok) throw new Error(response?.error || "Falha na verificação do ADN.");
+    await chrome.storage.session.set({ certificateVerified: true });
 
     status.className = "success";
     icon.textContent = "✓";
-    title.textContent = "Certificado ativo";
+    title.textContent = "Certificado Habilitado";
     description.textContent = "O certificado em uso no Chrome foi aceito pelo ADN. Esta verificação não confirma uma troca de certificado. Se a lista não apareceu, o Chrome pode ter reutilizado a escolha anterior.";
   } catch (error) {
     status.className = "error";

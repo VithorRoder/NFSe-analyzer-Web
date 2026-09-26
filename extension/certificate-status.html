@@ -15,7 +15,8 @@
     .error .icon { background: #fff0ef; color: #b54c4c; }
     h1 { margin: 0 0 12px; font-size: 28px; }
     p { margin: 0; color: #65728c; line-height: 1.55; }
-    .hint { margin-top: 18px; font-size: 13px; }
+    .hint { display: none; margin-top: 18px; font-size: 13px; }
+    .success .hint { display: block; }
     button { display: none; margin: 24px auto 0; padding: 11px 22px; border: 0; border-radius: 10px; background: #586be6; color: white; font: inherit; font-weight: 700; cursor: pointer; }
     .error button, .success button { display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -30,7 +31,7 @@
     <div id="icon" class="icon" aria-hidden="true"></div>
     <h1 id="title">Verificando acesso…</h1>
     <p id="description">O Chrome pode solicitar que você selecione seu certificado digital.</p>
-    <p class="hint">A verificação confirma o acesso ao ADN, mas não identifica qual certificado foi usado. Para trocar o certificado, digite <code>chrome://restart</code> na barra de endereços do Chrome. Depois, verifique novamente e escolha o outro certificado.</p>
+    <p class="hint">A verificação confirma o acesso ao ADN, mas não identifica qual certificado foi usado. Para trocar o certificado, digite <code>chrome://restart</code> na barra de endereços do Chrome. Depois, valide novamente e escolha o outro certificado.</p>
     <button id="retry" type="button">Verificar novamente</button>
   </main>
 </body>
