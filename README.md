@@ -8,6 +8,8 @@ Abra index.html ou rode python -m http.server 8000 e acesse http://localhost:800
 
 O endereço público configurado para o complemento é https://nfseanalyzer.vercel.app/.
 
+O site apresenta a instalação da extensão como primeiro passo e mantém um [guia de uso separado](guia.html) com validação do certificado, consulta ao ADN e conferência do pacote.
+
 ## Baixar XMLs do ADN
 
 Instale o [complemento Chrome pela Chrome Web Store](https://chromewebstore.google.com/detail/ohkpaipmjfkncgmcnjjheplfcocjnpno) ([instruções de instalação](extension/README.md)) e selecione o certificado digital no Chrome. Clique em **Baixar pacote completo** no site. A extensão consulta a API oficial do ADN em lotes por NSU, percorre automaticamente todos os documentos autorizados e só monta o relatório após o fim da consulta. Escolha empresa, direção, mês e formato antes de iniciar; os filtros são aplicados localmente aos documentos recebidos. O CNPJ/CPF pode ficar vazio quando uma única empresa aparece como prestadora ou tomadora em todas as notas; o site a identifica e classifica a direção também no modo **Emitidas e recebidas**. Se houver ambiguidade, o ZIP original será salvo e a página solicitará o documento. **Parar e salvar parcial** encerra após o lote atual e guarda os XMLs recebidos, sem gerar planilha parcial. Em caso de interrupção, a seção **Consolidar ZIPs do ADN** continua disponível para juntar os arquivos salvos.

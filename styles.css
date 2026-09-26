@@ -166,6 +166,22 @@ h1,h2,h3,p {
   gap:22px
 }
 
+.hero-step {
+  display:grid;
+  gap:8px
+}
+
+.hero-step>span {
+  color:#587663;
+  font-size:11px;
+  font-weight:800
+}
+
+.hero-guide-link {
+  display:inline-block;
+  margin-top:18px
+}
+
 .button {
   display:inline-flex;
   align-items:center;
@@ -628,6 +644,85 @@ td {
   font-size:11px
 }
 
+.guide-main {
+  padding-top:48px;
+  padding-bottom:64px
+}
+
+.guide-intro {
+  max-width:730px;
+  margin-bottom:32px
+}
+
+.guide-intro h1 {
+  margin:12px 0 14px;
+  font:800 clamp(34px,5vw,52px)/1.14 Manrope,sans-serif;
+  letter-spacing:-2px
+}
+
+.guide-intro p {
+  color:#607568;
+  line-height:1.65
+}
+
+.guide-steps {
+  display:grid;
+  gap:14px;
+  max-width:850px;
+  margin:0;
+  padding:0;
+  list-style:none
+}
+
+.guide-card {
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr);
+  gap:18px;
+  padding:25px;
+  border:1px solid #d8e7dc;
+  border-radius:13px;
+  background:#fff
+}
+
+.guide-number {
+  display:grid;
+  place-items:center;
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  color:#fff;
+  background:#178451;
+  font:800 18px Manrope,sans-serif
+}
+
+.guide-card h2 {
+  margin:5px 0 10px;
+  font:800 21px Manrope,sans-serif
+}
+
+.guide-card p {
+  max-width:680px;
+  margin-bottom:12px;
+  color:#607568;
+  font-size:14px;
+  line-height:1.65
+}
+
+.guide-card p:last-child {
+  margin-bottom:0
+}
+
+.guide-card code {
+  padding:2px 5px;
+  border-radius:4px;
+  color:#195a36;
+  background:#edf5ee
+}
+
+.guide-footer-action {
+  margin-top:26px
+}
+
 @media(max-width:900px) {
   .desktop-nav {
     gap:14px
@@ -699,6 +794,13 @@ td {
   }
   .hero-actions .button {
     width:100%
+  }
+  .hero-step {
+    width:100%
+  }
+  .guide-card {
+    grid-template-columns:1fr;
+    padding:19px
   }
   #adn-direct-filters,.adn-organize-controls {
     grid-template-columns:1fr

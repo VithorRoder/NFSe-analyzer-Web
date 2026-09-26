@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f5f8f5" />
+  <meta name="description" content="Passo a passo para instalar a extensão NFSe Analyzer, validar o certificado e baixar suas NFS-e." />
+  <title>Passo a passo — NFSe Analyzer</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="./extension/icons/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./extension/icons/icon-16.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="./site-status.js" defer></script>
+</head>
+
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="./index.html" aria-label="NFSe Analyzer, início">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span>nfse<span class="brand-accent">.</span>analyzer</span>
+      </a>
+      <nav class="desktop-nav" aria-label="Navegação principal">
+        <a href="./index.html#importar">Baixar notas</a>
+        <a href="./index.html#adn-organize">Consolidar ZIPs</a>
+        <a href="./index.html#pdf-convert">Converter PDFs</a>
+        <a href="./guia.html" aria-current="page">Passo a passo</a>
+      </nav>
+      <a class="header-cta" href="./index.html#importar">Abrir ferramenta <span aria-hidden="true">→</span></a>
+    </header>
+
+    <main class="guide-main section-wrap">
+      <div class="guide-intro">
+        <span class="section-kicker">GUIA DE INÍCIO</span>
+        <h1>Do certificado ao pacote de notas.</h1>
+        <p>Siga estas etapas no Chrome para consultar o ADN e organizar os XMLs. A geração do pacote acontece na página principal.</p>
+      </div>
+
+      <ol class="guide-steps">
+        <li class="guide-card">
+          <div class="guide-number" aria-hidden="true">1</div>
+          <div><span class="section-kicker">PRIMEIRO PASSO</span><h2>Instale a extensão</h2>
+            <p>Abra a página oficial do NFSe Analyzer na Chrome Web Store e clique em <strong>Usar no Chrome</strong>. Depois, abra ou recarregue este site.</p>
+            <a class="button button-primary" href="https://chromewebstore.google.com/detail/ohkpaipmjfkncgmcnjjheplfcocjnpno" target="_blank" rel="noopener noreferrer">Instalar extensão <span aria-hidden="true">↗</span></a>
+          </div>
+        </li>
+        <li class="guide-card">
+          <div class="guide-number" aria-hidden="true">2</div>
+          <div><span class="section-kicker">CERTIFICADO DIGITAL</span><h2>Valide o certificado no Chrome</h2>
+            <p>Clique no ícone da extensão e em <strong>Validar Certificado</strong>. Se o Chrome pedir, escolha o certificado autorizado para consultar as notas. Aguarde aparecer <strong>Certificado Habilitado</strong> em verde na extensão.</p>
+            <p>Para trocar o certificado no mesmo perfil, digite <code>chrome://restart</code> na barra de endereços do Chrome. Depois valide novamente e selecione o outro certificado, caso o Chrome apresente a lista.</p>
+          </div>
+        </li>
+        <li class="guide-card">
+          <div class="guide-number" aria-hidden="true">3</div>
+          <div><span class="section-kicker">CONSULTA AO ADN</span><h2>Escolha o pacote</h2>
+            <p>Na página principal, escolha empresa, direção, período e formato. Deixe CNPJ/CPF vazio para a detecção automática quando houver uma única empresa possível. Clique em <strong>Baixar pacote completo</strong> e aguarde a consulta terminar.</p>
+            <a class="text-link" href="./index.html#importar">Abrir geração de pacote →</a>
+          </div>
+        </li>
+        <li class="guide-card">
+          <div class="guide-number" aria-hidden="true">4</div>
+          <div><span class="section-kicker">ARQUIVOS GERADOS</span><h2>Abra e confira suas notas</h2>
+            <p>O ZIP pode incluir XMLs, planilha, PDFs de conferência e um visualizador HTML, conforme o formato escolhido. Abra o visualizador para buscar notas, filtrar por situação, direção e data, e conferir valores e tributos informados nos XMLs, como ISS, PIS, Cofins, IRRF e CSLL.</p>
+            <p>Se interromper a consulta, use <strong>Consolidar ZIPs do ADN</strong> na página principal com todos os lotes salvos. A opção <strong>Converter XMLs ou ZIP em PDFs</strong> transforma arquivos que você já possui.</p>
+          </div>
+        </li>
+      </ol>
+      <div class="guide-footer-action"><a class="button button-primary" href="./index.html#importar">Ir para a ferramenta <span aria-hidden="true">→</span></a></div>
+    </main>
+
+    <footer class="site-footer section-wrap"><a class="brand" href="./index.html"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span><span>nfse<span class="brand-accent">.</span>analyzer</span></a><span>© <span id="year"></span> NFSe Analyzer</span></footer>
+  </div>
+</body>
+
+</html>
